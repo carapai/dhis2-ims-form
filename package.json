@@ -2,7 +2,14 @@
   "name": "ims-form",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
+    "@ant-design/icons": "^4.2.1",
+    "@dhis2/app-runtime": "^2.2.2",
+    "@dhis2/d2-i18n": "^1.0.6",
+    "@dhis2/d2-ui-app": "^2.0.0",
+    "@dhis2/ui-core": "^5.0.5",
+    "@dhis2/ui-widgets": "^5.0.5",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -10,13 +17,22 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "antd": "^4.3.5",
     "autoprefixer": "^9.8.4",
     "babel-plugin-macros": "^2.8.0",
+    "d2": "^31.8.1",
+    "dayjs": "^1.8.28",
+    "lodash": "^4.17.15",
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.2.2",
+    "moment": "^2.27.0",
     "postcss-cli": "^7.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.1",
+    "styled-jsx": "^3.3.0",
     "tailwind.macro": "^1.0.0-alpha.10",
     "tailwindcss": "^1.4.6",
     "typescript": "~3.7.2"
@@ -24,10 +40,10 @@
   "scripts": {
     "build:css": "postcss src/tailwind.css -o src/index.css",
     "watch:css": "postcss src/tailwind.css -o src/index.css",
-    "start": "yarn watch:css & react-scripts start",
-    "build": "yarn run build:css react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "yarn watch:css & react-app-rewired start",
+    "build": "yarn run build:css && d2-manifest package.json ./public/manifest.webapp && react-app-rewired build && cd build && zip -r -D cpr-form.zip .",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -44,7 +60,37 @@
       "last 1 safari version"
     ]
   },
+  "manifest.webapp": {
+    "version": "0.1.0",
+    "name": "CPR Form",
+    "description": "CPR Form",
+    "launch_path": "index.html",
+    "icons": {
+      "16": "logo192.png",
+      "48": "logo192.png",
+      "128": "logo192.png"
+    },
+    "developer": {
+      "name": "HISP",
+      "url": "http://dhis2.org"
+    },
+    "default_locale": "en",
+    "activities": {
+      "dhis": {
+        "href": ".."
+      }
+    }
+  },
   "devDependencies": {
-    "@types/styled-components": "^5.1.0"
+    "@types/lodash": "^4.14.157",
+    "@types/moment": "^2.13.0",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/styled-components": "^5.1.0",
+    "babel-plugin-import": "^1.13.0",
+    "customize-cra": "^1.0.0",
+    "d2-manifest": "^1.0.0",
+    "less": "^3.11.3",
+    "less-loader": "^6.1.2",
+    "react-app-rewired": "^2.1.6"
   }
 }

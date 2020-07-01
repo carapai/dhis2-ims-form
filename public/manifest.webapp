@@ -1,0 +1,23 @@
+{
+  "launch_path": "index.html",
+  "default_locale": "en",
+  "activities": {
+    "dhis": {
+      "href": ".."
+    }
+  },
+  "appType": "APP",
+  "name": "CPR Form",
+  "version": "0.1.0",
+  "description": "CPR Form",
+  "icons": {
+    "16": "logo192.png",
+    "48": "logo192.png",
+    "128": "logo192.png"
+  },
+  "developer": {
+    "name": "HISP",
+    "url": "http://dhis2.org"
+  },
+  "manifest_generated_at": "Tue Jun 30 2020 19:01:03 GMT+0300 (East Africa Time)"
+}
