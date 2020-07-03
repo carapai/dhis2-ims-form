@@ -1,5 +1,5 @@
 import { observable, action, computed } from "mobx";
-import { flatten, fromPairs } from 'lodash';
+import { flatten, fromPairs, keys, sum, } from 'lodash';
 import React from 'react';
 import moment from 'moment'
 
@@ -15,11 +15,38 @@ class Store {
   @observable currentProgramStage: any;
   @observable currentEvent: any;
   @observable currentPage: string = 'list';
+  @observable disabled: string[] = [];
+
+  @observable inheritable = {
+    tyCCqrl6t1v: 'aRfwyyBIHjp',
+    Z9LUqA3qR3i: 'hJDbRV78VWp',
+    gsPwEWxXI6e: 'T8LURcyruHH',
+    W83hRUEbXjo: 'gY8m7JwBy9p',
+    XIqu530X3BA: 'Pn0OtdJRu86',
+    uvWrgEqv06F: 'FElEeHFA2h5',
+    WEV1hAZk1zl: 'RU20DkMfdnO',
+    oMZGOrVDzlQ: 'JbAG8Lkkd7i',
+    Jhix7kMMW5f: 'uGhQNyatC3M',
+    zCSkGEoyFkV: 'GeiyLk2U1qI',
+    pin6sarb8cc: 'PGCvDSP3Y9S',
+    sqckP81B8Go: 'lum3A7SVxKV',
+    fLD4wuUVi1i: 'TX3vq0b6f8R',
+    YUH3uoLn1me: 'uV7btUiA1BV'
+  }
+
+  @observable affected = {
+    DLmm6TZXbxO: 'W83hRUEbXjo',
+    zrVBd7rIed2: 'WEV1hAZk1zl',
+    RGc7vhjB0Mt: 'zCSkGEoyFkV',
+    psv1I7yysVD: 'fLD4wuUVi1i'
+  }
 
   @action setEngine = (engine: any) => this.engine = engine;
   @action setCurrentProgramStage = (stage: any) => () => this.currentProgramStage = stage;
   @action setCurrentEvent = (val: any) => this.currentEvent = val;
   @action setCurrentPage = (val: string) => this.currentPage = val;
+  @action enable = (val: string) => this.disabled = [...this.disabled, val];
+  @action disable = (val: string) => this.disabled = this.disabled.filter((e: string) => e !== val);
   @action loadUserOrgUnits = async () => {
 
     const query = {
@@ -56,6 +83,69 @@ class Store {
     }
   }
 
+  @action disableFields(ds: string[], disabled: boolean) {
+    if (this.selectedProgram && this.currentProgramStageDetails) {
+      const programStageSections = this.currentProgramStageDetails.programStageSections.map((ps: any) => {
+        let { dataElements, ...others } = ps;
+        dataElements = dataElements.map((de: any) => {
+          if (ds.indexOf(de.id) !== -1) {
+            return { ...de, disabled }
+          }
+          return de
+        });
+        return { ...others, dataElements }
+      });
+
+      const programStages = this.selectedProgram.programStages.map((ps: any) => {
+        if (ps.id === this.currentProgramStage) {
+          return { ...ps, programStageSections }
+        }
+        return ps
+      });
+      this.selectedProgram = { ...this.selectedProgram, programStages }
+    }
+  }
+  @action changeClassName(ds: string, className: string) {
+    if (this.selectedProgram && this.currentProgramStageDetails) {
+      const programStageSections = this.currentProgramStageDetails.programStageSections.map((ps: any) => {
+        let { dataElements, ...others } = ps;
+        dataElements = dataElements.map((de: any) => {
+          if (ds === de.id) {
+            return { ...de, className }
+          }
+          return de
+        });
+        return { ...others, dataElements }
+      });
+
+      const programStages = this.selectedProgram.programStages.map((ps: any) => {
+        if (ps.id === this.currentProgramStage) {
+          return { ...ps, programStageSections }
+        }
+        return ps
+      });
+      this.selectedProgram = { ...this.selectedProgram, programStages }
+    }
+  }
+
+  @action queryTrackedEntityInstance = async (instance: string) => {
+    const query = {
+      instance: {
+        resource: `trackedEntityInstances/${instance}.json`,
+        params: {
+          fields: '*'
+        }
+      }
+    }
+
+    try {
+      const data = await this.engine.query(query);
+      this.instance = data.instance
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   @action fetchProgram = async (instance: string, program: string) => {
     const query = {
       program: {
@@ -76,6 +166,7 @@ class Store {
       const data = await this.engine.query(query);
       this.currentProgramStage = data.program.programStages[0].id
       this.selectedProgram = data.program;
+      this.selectedOrgUnit = data.instance.orgUnit
       this.instance = data.instance
     } catch (e) {
       console.log(e);
@@ -138,7 +229,6 @@ class Store {
         trackedEntityInstances: {
           resource: 'trackedEntityInstances/query.json',
           params: {
-
             program: this.currentProgram,
             ou: this.selectedOrgUnit
           }
@@ -170,6 +260,21 @@ class Store {
     try {
       await this.engine.mutate(createMutation);
       await this.queryTrackedEntityInstances();
+    } catch (error) {
+      console.error("Failed to fetch projects", error);
+    }
+    this.setCurrentPage('list');
+  }
+
+  @action addEvent = async (events: any) => {
+    let createMutation: any = {
+      type: 'create',
+      resource: 'events.json',
+      data: { events }
+    }
+    try {
+      await this.engine.mutate(createMutation);
+      await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance);
     } catch (error) {
       console.error("Failed to fetch projects", error);
     }
@@ -237,6 +342,22 @@ class Store {
     return []
   }
 
+  @computed get enrollment() {
+    if (this.instance) {
+      const { enrollment, orgUnit, program, trackedEntityInstance } = this.instance.enrollments[0];
+      return {
+        enrollment,
+        orgUnit,
+        program,
+        trackedEntityInstance,
+        programStage: this.currentProgramStage
+      }
+
+    }
+
+    return {}
+  }
+
   @computed get isRepeatable() {
     return this.currentProgramStageDetails && this.currentProgramStageDetails.repeatable
   }
@@ -284,7 +405,6 @@ class Store {
   @computed get currentProcessedData() {
     return this.currentData.map((e: any) => {
       const { eventDate, dataValues, event } = e;
-
       const realValues = fromPairs(dataValues.map((dv: any) => {
         let value = dv.value;
         if (this.dateFields.indexOf(dv.dataElement) !== -1) {
@@ -296,6 +416,14 @@ class Store {
     });
   }
 
+  @computed get total() {
+    const values = this.currentProcessedData.filter((dv: any) => keys(dv).indexOf('g0K25Yvn0IH') !== -1 && !!dv.g0K25Yvn0IH).map((dv: any) => Number(dv.g0K25Yvn0IH));
+    return { g0K25Yvn0IH: sum(values), gIyHDZCbUFN: 'Total', event: 'total' };
+  }
+
+  @computed get allData() {
+    return [...this.currentProcessedData, this.total]
+  }
 
   @computed get currentProgramStageSections() {
     if (this.currentProgramStageDetails) {
@@ -338,7 +466,7 @@ class Store {
 
   @computed get currentTeamType() {
     if (this.selectedProgram) {
-      return this.selectedProgram.categoryCombo.categories.find((c: any) => c.id !== 'K1YcxEoSq1B').categoryOptions.map((o: any) => {
+      return this.selectedProgram.categoryCombo.categories.find((c: any) => c.id === 'wlEpNQNoR9F').categoryOptions.map((o: any) => {
         return {
           code: o.id,
           name: o.name
@@ -349,8 +477,63 @@ class Store {
   }
 
   @computed get eventModalForm() {
-    return [{ displayFormName: 'Team Name', valueType: 'TEXT', id: 'K1YcxEoSq1B', optionSets: { options: this.currentTeamName } }]
+    return [{
+      displayFormName: 'Date',
+      valueType: 'DATE',
+      id: 'eventDate'
+    }, {
+      displayFormName: 'Team Type',
+      valueType: 'TEXT',
+      id: 'wlEpNQNoR9F',
+      optionSet: { options: this.currentTeamType }
+    }, {
+      displayFormName: 'Team Name',
+      valueType: 'TEXT',
+      id: 'K1YcxEoSq1B',
+      optionSet: { options: this.currentTeamName }
+    }]
   }
+
+  @computed get getTemplateData() {
+    if (this.instance) {
+      const enrollment = this.instance.enrollments[0];
+      const { events } = enrollment;
+      const event = events.find((event: any) => {
+        return event.programStage === 'nNMTjdvTh7r'
+      });
+      if (event) {
+        return fromPairs(event.dataValues.map((dv: any) => {
+          let value = dv.value;
+          if (this.dateFields.indexOf(dv.dataElement) !== -1) {
+            value = moment(value)
+          }
+          return [dv.dataElement, value]
+        }));
+      }
+      return {}
+    }
+
+    return {}
+  }
+
+  @computed get trueOnly() {
+    if (this.currentProgramStageSections) {
+      const all = this.currentProgramStageSections.map((section: any) => {
+        return section.dataElements.filter((de: any) => {
+          return de.valueType === 'TRUE_ONLY'
+        }).map((x: any) => x.id)
+      });
+
+      return flatten(all);
+    }
+
+    return [];
+  }
+
+  @computed get disableRegister() {
+    return !this.currentProgram || !this.selectedOrgUnit
+  }
+
 
 }
 

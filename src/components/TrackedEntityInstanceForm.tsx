@@ -16,6 +16,9 @@ export const TrackedEntityInstanceForm = observer(() => {
   const [form] = Form.useForm();
   const store = useStore();
 
+  const onBlur = (id: string) => (e: any) => {
+  }
+
   const onFinish = async (values: any) => {
     let { enrollmentDate, ...others } = values;
     enrollmentDate = enrollmentDate.format('YYYY-MM-DD')
@@ -41,7 +44,7 @@ export const TrackedEntityInstanceForm = observer(() => {
   };
   return <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} size="large" style={{ width: '40%' }}>
     {store.currentAttributes.map((attribute: any) => {
-      return <ItemField key={attribute.id} item={attribute} />
+      return <ItemField key={attribute.id} item={attribute} onBlur={onBlur} />
     })}
 
     <Form.Item labelAlign="left" {...tailLayout}>

@@ -12,13 +12,13 @@
   display: grid;
   grid-template-rows: 50px 1fr;
 }
-.events{
+.events {
   display: grid;
-  grid-template-columns: 1fr 20%;
+  grid-template-columns: 1fr 25%;
 }
 
-.data{
+.data {
   display: grid;
-  grid-template-columns: 256px 1fr 60px;
+  grid-template-columns: 192px 1fr 60px;
   column-gap: 10px;
 }

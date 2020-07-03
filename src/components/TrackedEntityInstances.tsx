@@ -23,13 +23,14 @@ export const TrackedEntityInstances = observer(() => {
       setUnits(store.organisationUnits);
     });
   }, [store]);
-  // useEffect(() => {
-  //   store.queryTrackedEntityInstances();
-  // }, [store]);
+
+  useEffect(() => {
+    store.queryTrackedEntityInstances();
+  }, [store]);
 
   return (
     <div className="instances">
-      <div className="h-full bg-gray-200">
+      <div className="h-full bg-gray-100 p-2">
         <TreeSelect
           allowClear={true}
           treeDataSimpleMode
@@ -51,7 +52,7 @@ export const TrackedEntityInstances = observer(() => {
             </Select>
           </div>
           <div className="ml-auto">
-            <Button onClick={() => store.setCurrentPage('form')}>Register</Button>
+            <Button disabled={store.disableRegister} onClick={() => store.setCurrentPage('form')} size="large">Register</Button>
           </div>
         </div>
         {store.currentProgram ? store.currentPage === 'form' ? <TrackedEntityInstanceForm /> : <TrackedEntityInstanceList /> : null}

@@ -9,6 +9,7 @@ import { StoreContext } from "./Context";
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import "mobx-react-lite/batchingForReactDom";
+import Loading from './components/Loading';
 
 const baseUrl = process.env.REACT_APP_DHIS2_BASE_URL || 'http://localhost:8080/';
 
@@ -17,7 +18,7 @@ const config = {
   headers: process.env.NODE_ENV === 'development' ? { Authorization: process.env.REACT_APP_DHIS2_AUTHORIZATION } : null
 };
 
-ReactDOM.render(<div>Loading</div>, document.getElementById('root'));
+ReactDOM.render(<Loading />, document.getElementById('root'));
 
 init(config).then((d2: any) => {
   const appConfig: Config = {
