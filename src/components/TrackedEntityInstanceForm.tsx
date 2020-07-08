@@ -1,54 +1,53 @@
-import { Form, Button } from "antd";
+import { Button, Form } from "antd";
 import { observer } from "mobx-react";
-import React from "react";
+import React, { FC } from "react";
 import { useStore } from "../Context";
 import { ItemField } from "./ItemField";
 
+interface FormProps {
+  onFinish: (values: any) => void
+  initialValues?: any;
+  remove?: string[];
+  showCancel?: boolean;
+}
+
 const layout = {
-  labelCol: { span: 12 },
-  wrapperCol: { span: 12 },
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
 };
 const tailLayout = {
-  wrapperCol: { offset: 12, span: 12 },
+  wrapperCol: { offset: 8, span: 16 },
 };
 
-export const TrackedEntityInstanceForm = observer(() => {
+
+export const TrackedEntityInstanceForm: FC<FormProps> = observer(({ onFinish, showCancel = true, remove = [], initialValues = {} }) => {
   const [form] = Form.useForm();
   const store = useStore();
 
   const onBlur = (id: string) => (e: any) => {
   }
 
-  const onFinish = async (values: any) => {
-    let { enrollmentDate, ...others } = values;
-    enrollmentDate = enrollmentDate.format('YYYY-MM-DD')
-    const attributes = Object.entries(others).map(([attribute, value]) => {
-      return { attribute, value }
-    });
-    const enrollments = [{
-      enrollmentDate,
-      incidentDate: enrollmentDate,
-      orgUnit: store.selectedOrgUnit,
-      program: store.currentProgram
-    }];
+  const insert = (values: any) => {
+    form.resetFields();
+    onFinish(values);
+  }
 
-    const trackedEntityInstances = [{
-      attributes,
-      trackedEntityType: store.selectedProgram.trackedEntityType.id,
-      orgUnit: store.selectedOrgUnit,
-      program: store.currentProgram,
-      enrollments
-    }];
+  const cancel = () => {
+    form.resetFields();
+    store.setCurrentPage('list')
+  }
 
-    await store.addTrackedEntityInstance(trackedEntityInstances);
-  };
-  return <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} size="large" style={{ width: '40%' }}>
-    {store.currentAttributes.map((attribute: any) => {
+
+  return <Form {...layout} form={form} name="control-hooks" onFinish={insert} size="large" initialValues={initialValues}>
+    {store.currentAttributes.filter((item: any) => remove.indexOf(item.id) === -1).map((attribute: any) => {
       return <ItemField key={attribute.id} item={attribute} onBlur={onBlur} />
     })}
 
     <Form.Item labelAlign="left" {...tailLayout}>
-      <Button type="primary" htmlType="submit">Save</Button>
+      <div className="flex flex-row content-around">
+        {showCancel ? <Button type="default" htmlType="button" onClick={cancel}>Cancel</Button> : null}
+        <Button type="primary" htmlType="submit" className={showCancel ? 'ml-auto' : ''}>Save</Button>
+      </div>
     </Form.Item>
   </Form>
 })

@@ -22,3 +22,21 @@
   grid-template-columns: 192px 1fr 60px;
   column-gap: 10px;
 }
+
+.full-height {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.height-48 {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: calc(100vh - 48px);
+}

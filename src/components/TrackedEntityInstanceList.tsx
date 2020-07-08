@@ -1,14 +1,19 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Card, Checkbox, Drawer, List, Table } from "antd";
 import { observer } from "mobx-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useStore } from "../Context";
+import Loading from "./Loading";
 
 export const TrackedEntityInstanceList = observer(() => {
   const store = useStore();
   const history = useHistory();
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    store.queryTrackedEntityInstances();
+  }, [store]);
 
   const showDrawer = () => {
     setVisible(true);
@@ -18,6 +23,10 @@ export const TrackedEntityInstanceList = observer(() => {
     setVisible(false);
   };
 
+  if (store.loading) {
+    return <Loading />
+  }
+
   return <div>
     <Card
       title=""
@@ -26,18 +35,11 @@ export const TrackedEntityInstanceList = observer(() => {
       }
       bodyStyle={{ overflow: "auto", padding: 0, margin: 0 }}
     >
-      {/* <Search
-          size="large"
-          placeholder="input search text"
-          allowClear={true}
-          onChange={store.onSearch}
-          style={{ width: "100%", marginBottom: 20 }}
-        /> */}
       <Table
         rowClassName={() => "cursor-pointer"}
         onRow={(record, rowIndex) => {
           return {
-            onClick: (event) => {
+            onClick: async (event) => {
               history.push(`/${record["instance"]}/${store.currentProgram}`);
             },
           };
@@ -45,16 +47,6 @@ export const TrackedEntityInstanceList = observer(() => {
         columns={store.columns}
         dataSource={store.data}
         rowKey="instance"
-      // onChange={store.handleChange}
-      // style={{ textTransform: "uppercase", fontSize: 12 }}
-      // loading={store.loading}
-      // pagination={{
-      //   showSizeChanger: true,
-      //   total: store.total,
-      //   pageSize: store.pageSize,
-      //   showQuickJumper: true,
-      //   pageSizeOptions: ["5", "10", "15", "20", "25", "50", "100"],
-      // }}
       />
     </Card>
     <Drawer

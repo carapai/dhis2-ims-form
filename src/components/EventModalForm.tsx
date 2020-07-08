@@ -21,13 +21,13 @@ export const EventModalForm: FC<EventFormProps> = observer(({ initialValues = {}
 
   const [form] = Form.useForm();
   const store = useStore();
-
   const onBlur = (id: string) => (e: any) => {
   }
 
   return (
     <Modal
-      title="Basic Modal"
+      width="50%"
+      title="Team Selection"
       visible={visible}
       onCancel={() => {
         form.resetFields();

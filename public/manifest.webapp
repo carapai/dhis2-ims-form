@@ -7,9 +7,9 @@
     }
   },
   "appType": "APP",
-  "name": "CPR Form",
+  "name": "COUNTRY GRANT APP",
   "version": "0.1.0",
-  "description": "CPR Form",
+  "description": "COUNTRY GRANT APP",
   "icons": {
     "16": "logo192.png",
     "48": "logo192.png",
@@ -19,5 +19,5 @@
     "name": "HISP",
     "url": "http://dhis2.org"
   },
-  "manifest_generated_at": "Thu Jul 02 2020 00:52:01 GMT+0300 (East Africa Time)"
+  "manifest_generated_at": "Wed Jul 08 2020 23:16:45 GMT+0300 (East Africa Time)"
 }

@@ -20,28 +20,49 @@ const config = {
 
 ReactDOM.render(<Loading />, document.getElementById('root'));
 
-init(config).then((d2: any) => {
-  const appConfig: Config = {
-    baseUrl,
-    apiVersion: 29,
+const initialize = async () => {
+  try {
+    const d2 = await init(config);
+
+    const api = d2.Api.getApi();
+    const { organisationUnits } = await api.get("me.json", {
+      paging: false,
+      fields: 'organisationUnits[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level]]]]'
+    });
+
+    const { programs } = await api.get('programs.json', {
+      fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
+    })
+
+    store.setUserOrgUnits(organisationUnits);
+    store.setPrograms(programs);
+
+    const appConfig: Config = {
+      baseUrl,
+      apiVersion: 29,
+    }
+
+    ReactDOM.render(<Provider config={appConfig} >
+      <StoreContext.Provider value={store}>
+        <App />
+      </StoreContext.Provider>
+    </Provider>, document.getElementById('root'));
+  } catch (error) {
+    ReactDOM.render(<div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      width: '100vw',
+      height: '100vh',
+      fontSize: 28
+    }}>
+      {JSON.stringify(error)}
+    </div>, document.getElementById('root'))
   }
-  ReactDOM.render(<Provider config={appConfig} >
-    <StoreContext.Provider value={store}>
-      <App />
-    </StoreContext.Provider>
-  </Provider>, document.getElementById('root'));
-}).catch((e: any) => ReactDOM.render(<div style={{
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  width: '100vw',
-  height: '100vh',
-  fontSize: 28
-}}>
-  {JSON.stringify(e)}
-</div>, document.getElementById('root'))
-);
+}
+
+initialize();
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

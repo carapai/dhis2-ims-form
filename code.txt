@@ -1,56 +1,31 @@
-import { flatten, fromPairs, keys, sum } from 'lodash';
+import { flatten, fromPairs, keys, sum, uniqBy, uniq } from 'lodash';
 import { action, computed, observable } from "mobx";
 import moment from 'moment';
-import React from 'react';
+import React, { ReactText } from 'react';
 
+// interface Info{
+//   node: EventDataNode;
+//   expanded: boolean;
+//   nativeEvent: MouseEvent;
+// }
 class Store {
   @observable engine: any;
   @observable userOrgUnits: any[] = [];
   @observable programs: any[] = [];
   @observable selectedOrgUnit: any;
   @observable selectedProgram: any;
-  @observable currentProgramId: string = '';
   @observable data: any;
   @observable availableAttributes: any[] = [];
   @observable instance: any;
-  @observable currentProgramStage: string = 'nNMTjdvTh7r';
+  @observable currentProgramStage: any;
   @observable currentEvent: any;
   @observable currentPage: string = 'list';
   @observable disabled: string[] = [];
   @observable loading: boolean = false;
-  @observable expandedKeys: string[] = [];
+  @observable expandedKeys: string[] = ['hkjjkEkqW4t'];
   @observable selectedKeys: string[] = [];
   @observable checkedKeys: string[] = [];
-  @observable autoExpandParent: boolean = false;
-  @observable form: any;
-
-  @observable disabledElements = [
-    "WyNHgVjv97i",
-    "PTeqHUCZVFd",
-    "qP3onIBOoJa",
-    "fFe4xMmrPZZ",
-    "JZo5Iw4geHp",
-    "DwH5Iwha3UU",
-    "jZLnPmp18hY",
-    "kJPWSamlUAK",
-    "puXos8qdR9S",
-    "j8heE20u1T9",
-    "KLzfFndIPqo",
-    "lOzK4T2eTga",
-    "M9pi5hjxhWr",
-    "awxAGJwj83W",
-    "iSDnwU0GRAL",
-    "m0MhcXsb60u",
-    "mybOLY5lriU",
-    "CFn6FkmHuHH",
-    "c6D0SVzxt7A",
-    "LaBr26m8aNY",
-    "g0K25Yvn0IH",
-    "F4PyCcIgvZ1",
-    "OmOmbzDM4iZ",
-    "DT02jGe9med",
-    "dr6OgCteAUm"
-  ]
+  @observable autoExpandParent: boolean = true;
 
   @observable inheritable = {
     gsPwEWxXI6e: 'T8LURcyruHH',
@@ -89,15 +64,33 @@ class Store {
     psv1I7yysVD: 'fLD4wuUVi1i'
   }
 
-  @action setEngine = async (engine: any) => {
-    this.engine = engine;
+
+  @action setExpandedKeys = (val: string[]) => this.expandedKeys = val;;
+  @action setCheckedKeys = (val: string[]) => {
   }
-  @action setForm = (val: any) => this.form = val;
+  @action setSelectedKeys = (val: string[]) => this.selectedKeys = val;
+  @action setAutoExpandParent = (val: boolean) => this.autoExpandParent = val
+  @action onExpand = (expandedKeys: any, info: any) => {
+    console.log('onExpand', expandedKeys);
+    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
+    // or, you can remove all expanded children keys.
+    this.setExpandedKeys(expandedKeys);
+    this.setAutoExpandParent(false);
+  };
+
+  @action onChange = (e: any) => {
+    const { value } = e.target;
+    const units = this.allProgramsOrgUnits.filter((ou: any) => {
+      return String(ou.name).toLowerCase().includes(String(value).toLowerCase())
+    }).map((ou: any) => ou.parent.id);
+    console.log(units);
+    this.setExpandedKeys(uniq(units));
+    this.setAutoExpandParent(false);
+  };
+  @action setEngine = (engine: any) => this.engine = engine;
   @action setCurrentProgramStage = (stage: any) => () => this.currentProgramStage = stage;
   @action setCurrentEvent = (val: any) => this.currentEvent = val;
   @action setCurrentPage = (val: string) => this.currentPage = val;
-  @action setPrograms = (val: any) => this.programs = val;
-  @action setUserOrgUnits = (val: any) => this.userOrgUnits = val;
   @action enable = (val: string) => this.disabled = [...this.disabled, val];
   @action disable = (val: string) => this.disabled = this.disabled.filter((e: string) => e !== val);
   @action hideSection = (val: string) => {
@@ -112,18 +105,40 @@ class Store {
   @action unHideDataElement = (val: string) => {
     this.hiddenDataElements = this.hiddenDataElements.filter((v: string) => v !== val);
   }
+  @action loadUserOrgUnits = async () => {
+
+    const query = {
+      me: {
+        resource: 'me.json',
+        params: {
+          fields: 'organisationUnits[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level]]]]'
+        }
+      },
+      programs: {
+        resource: `programs`,
+        params: {
+          paging: false,
+          fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],organisationUnits[id,code,name,parent[id]]'
+        }
+      }
+    }
+
+    try {
+      const data = await this.engine.query(query);
+      this.userOrgUnits = data.me.organisationUnits;
+      this.programs = data.programs.programs;
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   @action setSelectedOrgUnit = async (val: any) => {
     try {
       this.selectedOrgUnit = val;
-      if (this.orgUnitPrograms.length > 0) {
-        this.selectedProgram = this.orgUnitPrograms[0];
-        this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
-          const { displayInList: selected, trackedEntityAttribute } = pa;
-          return { ...trackedEntityAttribute, selected };
-        });
-        await this.queryTrackedEntityInstances()
+      if (this.currentProgram) {
+        await this.queryTrackedEntityInstances();
       }
+      // this.selectedProgram = null;
     } catch (e) {
       console.log(e);
     }
@@ -174,8 +189,8 @@ class Store {
     }
   }
 
-  @action queryTrackedEntityInstance = async (instance: string, refresh: boolean = true) => {
-    this.loading = refresh;
+  @action queryTrackedEntityInstance = async (instance: string) => {
+    this.loading = true;
     const query = {
       instance: {
         resource: `trackedEntityInstances/${instance}.json`,
@@ -187,42 +202,42 @@ class Store {
 
     try {
       const data = await this.engine.query(query);
-      this.instance = data.instance;
-      this.selectedOrgUnit = this.instance.orgUnit;
+      this.instance = data.instance
+    } catch (e) {
+      console.log(e);
+    }
+    this.loading = false;
+
+  }
+
+  @action fetchProgram = async (instance: string, program: string) => {
+    this.loading = true;
+    const query = {
+      program: {
+        resource: `programs/${program}`,
+        params: {
+          fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
+        }
+      },
+      instance: {
+        resource: `trackedEntityInstances/${instance}.json`,
+        params: {
+          fields: '*'
+        }
+      }
+    }
+
+    try {
+      const data = await this.engine.query(query);
+      this.currentProgramStage = data.program.programStages[0].id
+      this.selectedProgram = data.program;
+      this.selectedOrgUnit = data.instance.orgUnit
+      this.instance = data.instance
     } catch (e) {
       console.log(e);
     }
     this.loading = false;
   }
-
-  // @action fetchProgram = async (instance: string, program: string) => {
-  //   this.loading = true;
-  //   const query = {
-  //     program: {
-  //       resource: `programs/${program}`,
-  //       params: {
-  //         fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
-  //       }
-  //     },
-  //     instance: {
-  //       resource: `trackedEntityInstances/${instance}.json`,
-  //       params: {
-  //         fields: '*'
-  //       }
-  //     }
-  //   }
-
-  //   try {
-  //     const data = await this.engine.query(query);
-  //     this.currentProgramStage = data.program.programStages[0].id
-  //     this.selectedProgram = data.program;
-  //     this.selectedOrgUnit = data.instance.orgUnit
-  //     this.instance = data.instance
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  //   this.loading = false;
-  // }
 
   @action loadOrganisationUnitsChildren = async (parent: string) => {
     const query = {
@@ -261,18 +276,9 @@ class Store {
     this.setAvailableAttributes(attributes);
   };
 
-  @action setCurrentProgramId = (val: string) => {
-    this.currentProgramId = val;
-    this.selectedProgram = this.programs.find((o: any) => o.id === val);
-    this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
-      const { displayInList: selected, trackedEntityAttribute } = pa;
-      return { ...trackedEntityAttribute, selected };
-    });
-  }
-
   @action setSelectedProgram = async (program: any) => {
-    this.setCurrentProgramId(program);
     try {
+      this.selectedProgram = this.orgUnitPrograms.find((o: any) => o.id === program);
       await this.queryTrackedEntityInstances();
       this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
         const { displayInList: selected, trackedEntityAttribute } = pa;
@@ -326,21 +332,7 @@ class Store {
     this.setCurrentPage('list');
   }
 
-  @action addTrackedEntityInstance2 = async (trackedEntityInstances: any) => {
-    let createMutation: any = {
-      type: 'create',
-      resource: 'trackedEntityInstances',
-      data: { trackedEntityInstances }
-    }
-    try {
-      await this.engine.mutate(createMutation);
-    } catch (error) {
-      console.error("Failed to fetch projects", error);
-    }
-    this.setCurrentPage('list');
-  }
-
-  @action addEvent = async (events: any, refresh: boolean = true) => {
+  @action addEvent = async (events: any) => {
     let createMutation: any = {
       type: 'create',
       resource: 'events.json',
@@ -348,63 +340,36 @@ class Store {
     }
     try {
       await this.engine.mutate(createMutation);
-      await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance, refresh);
+      await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance);
     } catch (error) {
       console.error("Failed to fetch projects", error);
     }
     this.setCurrentPage('list');
   }
-  @action changeDataElementValue = (element: string, currentValue: number) => {
-    if (this.currentProgramStage && this.currentEvent && this.instance) {
-      const enrollments = this.instance.enrollments.map((enrollment: any) => {
-        let { events, ...others } = enrollment;
-        events = events.map((event: any) => {
-          if (event.programStage === this.currentProgramStage && event.event === this.currentEvent) {
-            let { dataValues, ...rest } = event;
-            dataValues = dataValues.map((dv: any) => {
-              if (dv.dataElement === element) {
-                dv = { ...dv, newValue: currentValue }
-              }
-              return dv;
-            });
-            event = { ...rest, dataValues }
-          }
-          return event
-        });
-        return { ...others, events }
-      });
-      this.instance = { ...this.instance, enrollments };
-      console.log(JSON.stringify(this.instance));
-    }
-  }
 
-  @action deleteEvent = async () => {
-    const deleteMutation = {
-      type: 'delete',
-      resource: 'events',
-      id: this.currentEvent,
-    }
-    try {
-      await this.engine.mutate(deleteMutation);
-      await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance);
-    } catch (error) {
-      console.error("Failed to fetch projects", error);
-    }
-  }
-
-  @action deleteTrackedEntityInstance = async () => {
-    const deleteMutation = {
-      type: 'delete',
-      resource: 'trackedEntityInstances',
-      id: this.enrollment.trackedEntityInstance,
-    }
-    try {
-      await this.engine.mutate(deleteMutation);
-      await this.queryTrackedEntityInstances();
-    } catch (error) {
-      console.error("Failed to fetch projects", error);
-    }
-  }
+  // @action changeDataElementValue = (element: string, currentValue: number) => {
+  //   if (this.currentProgramStage && this.currentEvent && this.instance) {
+  //     const enrollments = this.instance.enrollments.map((enrollment: any) => {
+  //       let { events, ...others } = enrollment;
+  //       events = events.map((event: any) => {
+  //         if (event.programStage === this.currentProgramStage && event.event === this.currentEvent) {
+  //           let { dataValues, ...rest } = event;
+  //           dataValues = dataValues.map((dv: any) => {
+  //             if (dv.dataElement === element) {
+  //               dv = { ...dv, value: currentValue }
+  //             }
+  //             return dv;
+  //           });
+  //           event = { ...rest, dataValues }
+  //         }
+  //         return event
+  //       });
+  //       return { ...others, events }
+  //     });
+  //     // this.instance = { ...this.instance, enrollments };
+  //     console.log(keys(this.instance))
+  //   }
+  // }
 
 
   @computed
@@ -416,15 +381,18 @@ class Store {
   }
 
   @computed get orgUnitPrograms() {
-    if (this.selectedOrgUnit) {
-      return this.programs.filter((program: any) => {
-        return program.organisationUnits.find((orgUnit: any) => {
-          return orgUnit.id === this.selectedOrgUnit;
-        })
+    return this.programs.filter((program: any) => {
+      return program.organisationUnits.find((orgUnit: any) => {
+        return orgUnit.id === this.selectedOrgUnit;
       })
-    }
+    })
+  }
 
-    return []
+  @computed get allProgramsOrgUnits() {
+    return uniqBy(flatten(this.programs.map((program: any) => {
+      return program.organisationUnits;
+    })), 'id');
+
   }
 
   @computed get currentProgram() {
@@ -567,6 +535,7 @@ class Store {
       const search = this.allData.find((d: any) => d.event === this.currentEvent);
       return search || {}
     }
+
     return {}
   }
 
@@ -647,26 +616,25 @@ class Store {
     }]
   }
 
-  @computed get getTemplateData(): any {
+  @computed get getTemplateData() {
     if (this.instance) {
       const enrollment = this.instance.enrollments[0];
       const { events } = enrollment;
-      const e = events.find((event: any) => {
+      const event = events.find((event: any) => {
         return event.programStage === 'nNMTjdvTh7r'
       });
-      if (e) {
-        const { eventDate, event, dataValues } = e
-        const realValues = fromPairs(dataValues.map((dv: any) => {
+      if (event) {
+        return fromPairs(event.dataValues.map((dv: any) => {
           let value = dv.value;
           if (this.dateFields.indexOf(dv.dataElement) !== -1) {
             value = moment(value)
           }
           return [dv.dataElement, value]
         }));
-        return { ...realValues, eventDate: moment(eventDate), event }
       }
       return {}
     }
+
     return {}
   }
 
@@ -688,12 +656,6 @@ class Store {
     return !this.currentProgram || !this.selectedOrgUnit
   }
 
-  @computed get currentSelectedOrganisation() {
-    if (this.selectedProgram && this.selectedOrgUnit) {
-      return this.selectedProgram.organisationUnits.find((ou: any) => ou.id === this.selectedOrgUnit)
-    }
-    return {};
-  }
 
 }
 

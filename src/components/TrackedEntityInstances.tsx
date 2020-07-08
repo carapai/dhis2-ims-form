@@ -1,47 +1,70 @@
 import { Button, Select, TreeSelect } from "antd";
 import { observer } from "mobx-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useHistory } from 'react-router-dom';
 import { useStore } from "../Context";
+import { generateUid } from "../utils";
+import Loading from "./Loading";
 import { TrackedEntityInstanceForm } from "./TrackedEntityInstanceForm";
 import { TrackedEntityInstanceList } from "./TrackedEntityInstanceList";
 
-// const { Search } = Input;
 const { Option } = Select
 
 
 export const TrackedEntityInstances = observer(() => {
   const store = useStore();
-  const [units, setUnits] = useState<any>([]);
+  const history = useHistory();
 
-  const onLoadData = async (treeNode: any) => {
-    await store.loadOrganisationUnitsChildren(treeNode.id);
-    setUnits(store.organisationUnits);
+  const onFinish = async (values: any) => {
+    let { enrollmentDate, ...others } = values;
+    enrollmentDate = enrollmentDate.format('YYYY-MM-DD')
+    const attributes = Object.entries(others).map(([attribute, value]) => {
+      return { attribute, value }
+    });
+    const enrollments = [{
+      enrollmentDate,
+      incidentDate: enrollmentDate,
+      orgUnit: store.selectedOrgUnit,
+      program: store.currentProgram
+    }];
+
+    const trackedEntityInstance = generateUid()
+
+    const trackedEntityInstances = [{
+      trackedEntityInstance,
+      attributes,
+      trackedEntityType: store.selectedProgram.trackedEntityType.id,
+      orgUnit: store.selectedOrgUnit,
+      program: store.currentProgram,
+      enrollments
+    }];
+    await store.addTrackedEntityInstance(trackedEntityInstances);
+    history.push(`/${trackedEntityInstance}/${store.currentProgram}`)
   };
 
-  useEffect(() => {
-    store.loadUserOrgUnits().then(() => {
-      setUnits(store.organisationUnits);
-    });
-  }, [store]);
-
-  useEffect(() => {
-    store.queryTrackedEntityInstances();
-  }, [store]);
+  if (store.loading) {
+    return <Loading />
+  }
 
   return (
     <div className="instances">
-      <div className="h-full bg-gray-100 p-2">
+      <div className="bg-gray-100 p-2">
         <TreeSelect
+          treeDefaultExpandAll={true}
+          showSearch={true}
+          treeNodeFilterProp="title"
+          // onSearch={store.searchTree}
           allowClear={true}
-          treeDataSimpleMode
+          filterTreeNode={true}
           size="large"
           style={{ width: '100%' }}
           value={store.selectedOrgUnit}
-          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          dropdownStyle={{ maxHeight: 700, overflow: 'auto' }}
           placeholder="Please select country"
+          // treeDataSimpleMode={{ id: 'id' }}
           onChange={store.setSelectedOrgUnit}
-          loadData={onLoadData}
-          treeData={units}
+          // loadData={onLoadData}
+          treeData={store.userOrgUnits}
         />
       </div>
       <div className="right p-2">
@@ -55,7 +78,7 @@ export const TrackedEntityInstances = observer(() => {
             <Button disabled={store.disableRegister} onClick={() => store.setCurrentPage('form')} size="large">Register</Button>
           </div>
         </div>
-        {store.currentProgram ? store.currentPage === 'form' ? <TrackedEntityInstanceForm /> : <TrackedEntityInstanceList /> : null}
+        {store.currentProgram ? store.currentPage === 'form' ? <TrackedEntityInstanceForm onFinish={onFinish} /> : <TrackedEntityInstanceList /> : null}
       </div>
     </div>
   );

@@ -1,13 +1,9 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { Spin } from 'antd';
-const Loading = () => <div style={{
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  width: '100vw',
-  height: '100vh'
-}}>
+interface LoadingProps {
+  className?: string;
+}
+const Loading: FC<LoadingProps> = ({ className = 'full-height' }) => <div className={className}>
   <Spin size="large" />
 </div>;
 

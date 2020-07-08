@@ -62,8 +62,8 @@
   },
   "manifest.webapp": {
     "version": "0.1.0",
-    "name": "CPR Form",
-    "description": "CPR Form",
+    "name": "COUNTRY GRANT APP",
+    "description": "COUNTRY GRANT APP",
     "launch_path": "index.html",
     "icons": {
       "16": "logo192.png",

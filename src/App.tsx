@@ -4,10 +4,10 @@ import { HeaderBar } from '@dhis2/ui-widgets';
 import { observer } from "mobx-react";
 import React from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
-import { TrackedEntityInstances } from "./components/TrackedEntityInstances";
-import { useStore } from "./Context";
 import "./App.css";
 import { TrackedEntityInstance } from "./components/TrackedEntityInstance";
+import { TrackedEntityInstances } from "./components/TrackedEntityInstances";
+import { useStore } from "./Context";
 
 
 export const App = observer(() => {
