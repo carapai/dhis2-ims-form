@@ -1,14 +1,16 @@
-import { Button, Select, TreeSelect } from "antd";
+import { Button, Input, Select, Tree } from "antd";
 import { observer } from "mobx-react";
 import React from "react";
 import { useHistory } from 'react-router-dom';
 import { useStore } from "../Context";
 import { generateUid } from "../utils";
-import Loading from "./Loading";
 import { TrackedEntityInstanceForm } from "./TrackedEntityInstanceForm";
 import { TrackedEntityInstanceList } from "./TrackedEntityInstanceList";
+import { Welcome } from "./Welcome";
 
 const { Option } = Select
+const { Search } = Input;
+
 
 
 export const TrackedEntityInstances = observer(() => {
@@ -42,35 +44,25 @@ export const TrackedEntityInstances = observer(() => {
     history.push(`/${trackedEntityInstance}/${store.currentProgram}`)
   };
 
-  if (store.loading) {
-    return <Loading />
-  }
-
   return (
     <div className="instances">
       <div className="bg-gray-100 p-2">
-        <TreeSelect
-          treeDefaultExpandAll={true}
-          showSearch={true}
-          treeNodeFilterProp="title"
-          // onSearch={store.searchTree}
-          allowClear={true}
-          filterTreeNode={true}
-          size="large"
-          style={{ width: '100%' }}
-          value={store.selectedOrgUnit}
-          dropdownStyle={{ maxHeight: 700, overflow: 'auto' }}
-          placeholder="Please select country"
-          // treeDataSimpleMode={{ id: 'id' }}
-          onChange={store.setSelectedOrgUnit}
-          // loadData={onLoadData}
-          treeData={store.userOrgUnits}
-        />
+        <Search size="large" style={{ marginBottom: 8 }} placeholder="Search" onChange={store.onChange} />
+        <div style={{ overflow: 'auto', height: 700 }}>
+          <Tree
+            selectedKeys={store.selectedKeys}
+            onSelect={store.setSelectedOrgUnit}
+            onExpand={store.onExpand}
+            expandedKeys={store.expandedKeys}
+            autoExpandParent={store.autoExpandParent}
+            treeData={store.userOrgUnits}
+          />
+        </div>
       </div>
       <div className="right p-2">
         <div className="flex">
           <div className="w-1/2">
-            <Select style={{ width: "100%" }} allowClear={true} onChange={store.setSelectedProgram} size="large" value={store.currentProgram}>
+            <Select style={{ width: "70%" }} allowClear={true} onChange={store.setSelectedProgram} size="large" value={store.currentProgram} placeholder="Select Program">
               {store.orgUnitPrograms.map((p: any) => <Option value={p.id} key={p.id}>{p.name}</Option>)}
             </Select>
           </div>
@@ -78,7 +70,7 @@ export const TrackedEntityInstances = observer(() => {
             <Button disabled={store.disableRegister} onClick={() => store.setCurrentPage('form')} size="large">Register</Button>
           </div>
         </div>
-        {store.currentProgram ? store.currentPage === 'form' ? <TrackedEntityInstanceForm onFinish={onFinish} /> : <TrackedEntityInstanceList /> : null}
+        {store.currentProgram ? store.currentPage === 'form' ? <TrackedEntityInstanceForm onFinish={onFinish} /> : <TrackedEntityInstanceList /> : <Welcome />}
       </div>
     </div>
   );

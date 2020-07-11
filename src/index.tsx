@@ -18,24 +18,35 @@ const config = {
   headers: process.env.NODE_ENV === 'development' ? { Authorization: process.env.REACT_APP_DHIS2_AUTHORIZATION } : null
 };
 
-ReactDOM.render(<Loading />, document.getElementById('root'));
+ReactDOM.render(<Loading className="full-height"/>, document.getElementById('root'));
 
 const initialize = async () => {
   try {
     const d2 = await init(config);
 
     const api = d2.Api.getApi();
-    const { organisationUnits } = await api.get("me.json", {
+
+    const meRequest: Promise<any> = api.get("me.json", {
       paging: false,
-      fields: 'organisationUnits[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level,children[id~rename(value),name~rename(title),level]]]]'
+      fields: 'organisationUnits[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level,children[id~rename(key),name~rename(title),level]]]]'
     });
 
-    const { programs } = await api.get('programs.json', {
-      fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
-    })
 
-    store.setUserOrgUnits(organisationUnits);
-    store.setPrograms(programs);
+    const countriesRequest: Promise<any> = api.get("organisationUnits.json", {
+      paging: false,
+      fields: 'id~rename(key),name~rename(title)',
+      level: 4
+    });
+
+    const programsRequest: Promise<any> = api.get('programs.json', {
+      paging: false,
+      fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
+    });
+
+    const allData = await Promise.all([meRequest, programsRequest, countriesRequest]);
+    store.setUserOrgUnits(allData[0].organisationUnits);
+    store.setPrograms(allData[1].programs);
+    store.setCounties(allData[2].organisationUnits)
 
     const appConfig: Config = {
       baseUrl,

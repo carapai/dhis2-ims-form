@@ -61,14 +61,14 @@
     ]
   },
   "manifest.webapp": {
-    "version": "0.1.0",
-    "name": "COUNTRY GRANT APP",
-    "description": "COUNTRY GRANT APP",
+    "version": "0.2.0",
+    "name": "OCC Country Grant Tracker",
+    "description": "OCC Country Grant Tracker",
     "launch_path": "index.html",
     "icons": {
-      "16": "logo192.png",
-      "48": "logo192.png",
-      "128": "logo192.png"
+      "16": "logo_front.png",
+      "48": "logo_front.png",
+      "128": "logo_front.png"
     },
     "developer": {
       "name": "HISP",

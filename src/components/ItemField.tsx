@@ -33,7 +33,7 @@ export const ItemField: FC<ItemFieldProps> = observer(({ item, onBlur, otherClas
     case 'TRUE_ONLY':
     case 'BOOLEAN':
       return <Form.Item key={item.id} className={`m-0 mt-2 mb-2 p-1 ${otherClasses}`} valuePropName="checked" labelAlign="right" name={item.id} label={String(item.displayFormName).replace('Country Grant Template - ', '')}>
-        <Checkbox className={item.className} />
+        <Checkbox disabled={disabled} className={item.className} />
       </Form.Item>
     case 'DATE':
       return <Form.Item key={item.id} className={`m-0 mt-2 mb-2 p-1 ${otherClasses}`} labelAlign="right" name={item.id} label={String(item.displayFormName).replace('Country Grant Template - ', '')}>

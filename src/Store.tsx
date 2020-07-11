@@ -2,6 +2,7 @@ import { flatten, fromPairs, keys, sum } from 'lodash';
 import { action, computed, observable } from "mobx";
 import moment from 'moment';
 import React from 'react';
+import { addValues, convertValues, getParentKey, performOperation } from './utils';
 
 class Store {
   @observable engine: any;
@@ -18,10 +19,10 @@ class Store {
   @observable currentPage: string = 'list';
   @observable disabled: string[] = [];
   @observable loading: boolean = false;
-  @observable expandedKeys: string[] = [];
+  @observable expandedKeys: string[] = ['MAGkzcmHxwc'];
   @observable selectedKeys: string[] = [];
   @observable checkedKeys: string[] = [];
-  @observable autoExpandParent: boolean = false;
+  @observable autoExpandParent: boolean = true;
   @observable form: any;
 
   @observable disabledElements = [
@@ -77,22 +78,30 @@ class Store {
     F04W7zc8KgV: 'xCR6kMruEIb',
     PNleJ4ejsuW: 'EylCEWx1bYJ',
     rE38dvsAtEw: 'NlKNTt8lRtc',
+
+    PGoc4AXIskG: 'H6lgwocDrTy',
+    zCSkGEoyFkV: 'GeiyLk2U1qI',
+    fLD4wuUVi1i: 'TX3vq0b6f8R',
+    cEQikKW778D: 'H6lgwocDrTy'
   }
 
   @observable hiddenSections: string[] = [];
   @observable hiddenDataElements: string[] = [];
 
-  @observable affected = {
+  @observable affected: any = {
     DLmm6TZXbxO: 'W83hRUEbXjo',
     zrVBd7rIed2: 'WEV1hAZk1zl',
     RGc7vhjB0Mt: 'zCSkGEoyFkV',
     psv1I7yysVD: 'fLD4wuUVi1i'
   }
 
+  @observable countries: any[] = [];
+
   @action setEngine = async (engine: any) => {
     this.engine = engine;
   }
   @action setForm = (val: any) => this.form = val;
+  @action setCounties = (val: any) => this.countries = val;
   @action setCurrentProgramStage = (stage: any) => () => this.currentProgramStage = stage;
   @action setCurrentEvent = (val: any) => this.currentEvent = val;
   @action setCurrentPage = (val: string) => this.currentPage = val;
@@ -113,9 +122,10 @@ class Store {
     this.hiddenDataElements = this.hiddenDataElements.filter((v: string) => v !== val);
   }
 
-  @action setSelectedOrgUnit = async (val: any) => {
+  @action setSelectedOrgUnit = async (selectedKeys: any[], info: any) => {
     try {
-      this.selectedOrgUnit = val;
+      this.selectedOrgUnit = selectedKeys[0];
+      this.selectedKeys = selectedKeys;
       if (this.orgUnitPrograms.length > 0) {
         this.selectedProgram = this.orgUnitPrograms[0];
         this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
@@ -195,35 +205,6 @@ class Store {
     this.loading = false;
   }
 
-  // @action fetchProgram = async (instance: string, program: string) => {
-  //   this.loading = true;
-  //   const query = {
-  //     program: {
-  //       resource: `programs/${program}`,
-  //       params: {
-  //         fields: 'id,name,displayName,lastUpdated,selectIncidentDatesInFuture,selectEnrollmentDatesInFuture,programType,trackedEntityType,trackedEntity,programTrackedEntityAttributes[mandatory,valueType,displayInList,trackedEntityAttribute[id,code,name,displayName,unique,optionSet[options[name,code]]]],programStages[id,name,displayName,repeatable,programStageSections[id,name,dataElements[id,name,displayFormName,valueType,optionSet[options[name,code]]]],programStageDataElements[compulsory,displayInReports,sortOrder,dataElement[id,code,valueType,displayFormName,optionSet[options[name,code]]]]],organisationUnits[id,code,name],categoryCombo[id,name,categories[id,name,code,categoryOptions[id,name,code]],categoryOptionCombos[id,name,categoryOptions[id,name]]]'
-  //       }
-  //     },
-  //     instance: {
-  //       resource: `trackedEntityInstances/${instance}.json`,
-  //       params: {
-  //         fields: '*'
-  //       }
-  //     }
-  //   }
-
-  //   try {
-  //     const data = await this.engine.query(query);
-  //     this.currentProgramStage = data.program.programStages[0].id
-  //     this.selectedProgram = data.program;
-  //     this.selectedOrgUnit = data.instance.orgUnit
-  //     this.instance = data.instance
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  //   this.loading = false;
-  // }
-
   @action loadOrganisationUnitsChildren = async (parent: string) => {
     const query = {
       organisations: {
@@ -263,11 +244,15 @@ class Store {
 
   @action setCurrentProgramId = (val: string) => {
     this.currentProgramId = val;
-    this.selectedProgram = this.programs.find((o: any) => o.id === val);
-    this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
-      const { displayInList: selected, trackedEntityAttribute } = pa;
-      return { ...trackedEntityAttribute, selected };
-    });
+    if (val) {
+      this.selectedProgram = this.programs.find((o: any) => o.id === val);
+      this.availableAttributes = this.selectedProgram.programTrackedEntityAttributes.map((pa: any) => {
+        const { displayInList: selected, trackedEntityAttribute } = pa;
+        return { ...trackedEntityAttribute, selected };
+      });
+    } else {
+      this.selectedProgram = null;
+    }
   }
 
   @action setSelectedProgram = async (program: any) => {
@@ -285,6 +270,7 @@ class Store {
 
   @action queryTrackedEntityInstances = async () => {
     if (this.selectedOrgUnit && this.selectedProgram) {
+      this.loading = true;
       const query1 = {
         trackedEntityInstances: {
           resource: 'trackedEntityInstances/query.json',
@@ -305,7 +291,9 @@ class Store {
             }))
           );
         });
+        this.loading = false;
       } catch (e) {
+        this.loading = false
         console.log(e);
       }
     }
@@ -406,6 +394,48 @@ class Store {
     }
   }
 
+  @action onExpand = (expandedKeys: any) => {
+    this.expandedKeys = expandedKeys;
+    this.autoExpandParent = false;
+  };
+
+  @action onChange = (e: any) => {
+    const { value } = e.target;
+    if (value) {
+      const expandedKeys: any = this.countries.map(item => {
+        if (String(item.title).toLowerCase().includes(String(value).toLowerCase())) {
+          return getParentKey(item.key, this.userOrgUnits);
+        }
+        return null;
+      }).filter((item, i, self) => item && self.indexOf(item) === i);
+
+      this.expandedKeys = expandedKeys;
+      this.autoExpandParent = true;
+    } else {
+      this.expandedKeys = ['MAGkzcmHxwc'];
+    }
+  };
+
+  // @action updateEvent = (dv: any, v: any) => {
+  //   if (this.instance) {
+  //     this.instance.enrollments.map((enrollment: any) => {
+  //       const { events, ...others } = enrollment;
+  //       const processedEvents = events.map((event: any) => {
+  //         if (event.event === this.currentEvent) {
+  //           const { dataValues, ...otherColumns } = event;
+  //           const processedDataValues = dataValues.map((dataValue: any) => {
+  //             const {dataElement,...otherDataValueColumns} = dataValue;
+  //             if(dv === dataElement){
+
+  //             }
+  //           })
+  //         }
+  //         return event
+  //       })
+  //     })
+  //   }
+  // }
+
 
   @computed
   get organisationUnits() {
@@ -466,6 +496,17 @@ class Store {
       const { events } = enrollment;
       return events.filter((event: any) => {
         return event.programStage === this.currentProgramStage
+      })
+    }
+    return []
+  }
+
+  @computed get teamGrantData() {
+    if (this.instance) {
+      const enrollment = this.instance.enrollments[0];
+      const { events } = enrollment;
+      return events.filter((event: any) => {
+        return event.programStage !== 'nNMTjdvTh7r'
       })
     }
     return []
@@ -549,6 +590,94 @@ class Store {
         }
         return [dv.dataElement, value]
       }));
+      return { ...realValues, eventDate: moment(eventDate), event }
+    });
+  }
+
+  @computed get processedTeamGrantData() {
+    return this.teamGrantData.map((e: any) => {
+      const { eventDate, dataValues, event } = e;
+      let realValues = fromPairs(dataValues.map((dv: any) => {
+        let value = dv.value;
+        if (this.dateFields.indexOf(dv.dataElement) !== -1) {
+          value = moment(value)
+        }
+        return [dv.dataElement, value]
+      }));
+      if (realValues.AKcvH7719Wp && realValues.AKcvH7719Wp === 'Yes') {
+        const rate = this.getTemplateData['vz7oWyEKTv2'] || 1
+        Object.entries(this.inheritable).forEach(([de, value]) => {
+          const val = this.getTemplateData[value];
+          realValues = { ...realValues, [de]: val }
+        });
+
+        realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
+        realValues = performOperation(realValues, 'PGoc4AXIskG', 'uvWrgEqv06F', 'WEV1hAZk1zl', '/');
+        realValues = performOperation(realValues, 'Z9LUqA3qR3i', 'Jhix7kMMW5f', 'zCSkGEoyFkV', '/');
+        realValues = performOperation(realValues, 'zCSkGEoyFkV', 'pin6sarb8cc', 'cEQikKW778D', '+');
+        realValues = performOperation(realValues, 'zCSkGEoyFkV', 'sqckP81B8Go', 'fLD4wuUVi1i', '/');
+
+        realValues = addValues(['BoM0YNDBUdy', 'VxTZaIwIfS8', 'gtPZBBL7rhj', 'UazX97Kqd3p'], realValues, 'dr6OgCteAUm');
+        realValues = addValues(['IZdmRdDWZpX', 'klxMWtWKP3v', 'Qs4QGZ9HoDC', 'tSZLIplM0Xg'], realValues, 'DT02jGe9med');
+        realValues = addValues(['dr6OgCteAUm', 'DT02jGe9med'], realValues, 'OmOmbzDM4iZ');
+
+        realValues = convertValues(rate, 'BoM0YNDBUdy', 'DwH5Iwha3UU', realValues);
+        realValues = convertValues(rate, 'VxTZaIwIfS8', 'jZLnPmp18hY', realValues);
+        realValues = convertValues(rate, 'gtPZBBL7rhj', 'kJPWSamlUAK', realValues);
+        realValues = convertValues(rate, 'UazX97Kqd3p', 'puXos8qdR9S', realValues);
+        realValues = convertValues(rate, 'dr6OgCteAUm', 'j8heE20u1T9', realValues);
+
+
+        realValues = convertValues(rate, 'IZdmRdDWZpX', 'm0MhcXsb60u', realValues);
+        realValues = convertValues(rate, 'klxMWtWKP3v', 'mybOLY5lriU', realValues);
+        realValues = convertValues(rate, 'Qs4QGZ9HoDC', 'CFn6FkmHuHH', realValues);
+        realValues = convertValues(rate, 'tSZLIplM0Xg', 'c6D0SVzxt7A', realValues);
+        realValues = convertValues(rate, 'DT02jGe9med', 'LaBr26m8aNY', realValues);
+
+
+        const i = Number(realValues['g3segTGp2yD']) || 0;
+        const c = Number(realValues['W83hRUEbXjo']) || 0;
+        const j = Number(realValues['oyXv9gX46VO']) || 0;
+        const g = Number(realValues['WEV1hAZk1zl']) || 0;
+        const h = Number(realValues['oMZGOrVDzlQ']) || 0;
+        const k = Number(realValues['pbr4BhkiWtL']) || 0;
+        const v = Number(realValues['Wxa3cC9tjUK']) || 0;
+        const t = Number(realValues['fLD4wuUVi1i']) || 0;
+        const u = Number(realValues['YUH3uoLn1me']) || 0;
+        const e = Number(realValues['PGoc4AXIskG']) || 0;
+        const l = Number(realValues['uA3G2zQ14rk']) || 0;
+        const r = Number(realValues['cEQikKW778D']) || 0;
+        const w = Number(realValues['qKTeyWi7MVz']) || 0;
+        const m = Number(realValues['nDgN4uKcSPo']) || 0;
+        const ab = Number(realValues['eiHYxW2Ybjv']) || 0;
+        const x = Number(realValues['JbckYmJRNSl']) || 0;
+        const y = Number(realValues['F04W7zc8KgV']) || 0;
+        const z = Number(realValues['PNleJ4ejsuW']) || 0;
+        const aa = Number(realValues['rE38dvsAtEw']) || 0;
+        const ac = Number(realValues['CiOsAwrfUaP']) || 0;
+
+        const transportGrant = (i * 3 * c / 40) + (j * 3 * 4) + (g * h * k) + (v * t * u);
+        const mpEventSnaks = e * l;
+        const tgjEventMeals = r * w;
+        const admin = m * c;
+
+        realValues = { ...realValues, WyNHgVjv97i: Math.ceil(transportGrant) };
+        realValues = { ...realValues, PTeqHUCZVFd: Math.ceil(mpEventSnaks) };
+        realValues = { ...realValues, qP3onIBOoJa: Math.ceil(tgjEventMeals) };
+        realValues = { ...realValues, fFe4xMmrPZZ: Math.ceil(admin) };
+
+        realValues = { ...realValues, KLzfFndIPqo: x * ab * 2 };
+        realValues = { ...realValues, lOzK4T2eTga: y * ab * 2 };
+        realValues = { ...realValues, M9pi5hjxhWr: z * ab * 2 };
+        realValues = { ...realValues, awxAGJwj83W: aa * ac };
+
+        realValues = addValues(['WyNHgVjv97i', 'PTeqHUCZVFd', 'qP3onIBOoJa', 'fFe4xMmrPZZ'], realValues, 'JZo5Iw4geHp')
+        realValues = addValues(['KLzfFndIPqo', 'lOzK4T2eTga', 'M9pi5hjxhWr', 'awxAGJwj83W'], realValues, 'iSDnwU0GRAL')
+
+        realValues = addValues(['j8heE20u1T9', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
+        realValues = addValues(['LaBr26m8aNY', 'iSDnwU0GRAL'], realValues, 'F4PyCcIgvZ1')
+
+      }
       return { ...realValues, eventDate: moment(eventDate), event }
     });
   }

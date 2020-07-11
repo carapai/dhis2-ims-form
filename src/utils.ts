@@ -42,3 +42,60 @@ export const generateUid = () => {
   // return new String( randomChars );
   return randomChars;
 };
+
+export const addValues = (dataElements: string[], dataValues: any, affectedDataElement: string) => {
+  let sum = 0;
+
+  dataElements.forEach((de: string) => {
+    sum = sum + (Number(dataValues[de]) || 0)
+  });
+  return { ...dataValues, [affectedDataElement]: sum }
+}
+
+export const convertValues = (rate: number, dataElement: string, affectedDataElement: string, dataValues: any) => {
+  const value = Number(dataValues[dataElement]) || 0;
+  return { ...dataValues, [affectedDataElement]: value / rate }
+}
+
+export const performOperation = (dataValues: any, leftElement: string, rightElement: string, affectedElement: string, op: string) => {
+  const a = Number(dataValues[leftElement]) || 0;
+  const b = Number(dataValues[rightElement]) || 0;
+  let value = 0;
+  switch (op) {
+    case '+':
+      value = a + b;
+      break;
+    case '-':
+      value = a - b;
+      break;
+    case '*':
+      value = a * b;
+      break;
+    case '/':
+      if (b === 0) {
+        value = 0
+      } else {
+        value = Math.ceil(a / b)
+      }
+      break;
+    default:
+      break;
+  }
+
+  return { ...dataValues, [affectedElement]: value }
+}
+
+export const getParentKey = (key: any, tree: any): any => {
+  let parentKey;
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    if (node.children) {
+      if (node.children.some((item: any) => item.key === key)) {
+        parentKey = node.key;
+      } else if (getParentKey(key, node.children)) {
+        parentKey = getParentKey(key, node.children);
+      }
+    }
+  }
+  return parentKey;
+};

@@ -1,6 +1,6 @@
-import { Button, Card, Input, Menu, Popconfirm, Table } from "antd";
+import { Button, Card, Input, Menu, Popconfirm, Table, Select } from "antd";
 import { FormInstance } from "antd/lib/form";
-import { fromPairs } from "lodash";
+import { fromPairs, keys } from "lodash";
 import { observer } from "mobx-react";
 import React, { FC, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -10,6 +10,8 @@ import { EventForm } from "./EventForm";
 import { EventModalForm } from "./EventModalForm";
 import Loading from "./Loading";
 import { TrackedEntityInstanceForm } from "./TrackedEntityInstanceForm";
+
+const { Option } = Select
 
 const addDataElements = (dataElements: string[], form: any, affectedDataElement: string) => {
   let sum = 0;
@@ -22,17 +24,18 @@ const addDataElements = (dataElements: string[], form: any, affectedDataElement:
 
 const convert = (rate: number, dataElement: string, affectedDataElement: string, form: any) => {
   const value = Number(form.getFieldValue(dataElement)) || 0;
-  form.setFieldsValue({ [affectedDataElement]: value * rate });
+  form.setFieldsValue({ [affectedDataElement]: value / rate });
 }
 
 export const TrackedEntityInstance: FC<any> = observer(() => {
   const store = useStore();
-  // const [form] = Form.useForm();
   const [visible, setVisible] = useState<boolean>(false);
   const { instance, program } = useParams();
   const [expandedRows, setExpandedRows] = useState<any[]>([]);
   const [values, setValues] = useState<any>();
   const history = useHistory();
+
+  const affectedKeys = keys(store.affected);
 
   useEffect(() => {
     store.setCurrentProgramId(program);
@@ -137,6 +140,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
   }
 
   const onValuesChange = (form: FormInstance) => async (changedValues: any, allValues: any) => {
+    const [key, value] = Object.entries(changedValues)[0];
     const rate = Number(store.getTemplateData['vz7oWyEKTv2'] || 1);
     if (changedValues.aRfwyyBIHjp && form.getFieldValue('T8LURcyruHH')) {
       const newValue = Math.ceil(form.getFieldValue('aRfwyyBIHjp') / form.getFieldValue('T8LURcyruHH'))
@@ -192,12 +196,10 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       form.setFieldsValue({ W83hRUEbXjo: newValue });
     }
 
-
     if ((changedValues.XIqu530X3BA || form.getFieldValue('XIqu530X3BA')) && form.getFieldValue('W83hRUEbXjo')) {
       const val = Number(form.getFieldValue('W83hRUEbXjo')) * Number(form.getFieldValue('XIqu530X3BA'))
       form.setFieldsValue({ PGoc4AXIskG: val });
     }
-
 
     if ((changedValues.W83hRUEbXjo || form.getFieldValue('W83hRUEbXjo')) && form.getFieldValue('XIqu530X3BA')) {
       const val = Number(form.getFieldValue('W83hRUEbXjo')) * Number(form.getFieldValue('XIqu530X3BA'))
@@ -239,6 +241,15 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       form.setFieldsValue({ fLD4wuUVi1i: val });
     }
 
+    if (affectedKeys.indexOf(key) !== -1) {
+      const toAffect = store.affected[key]
+      if (value === true) {
+        store.disableFields([toAffect], false);
+      } else {
+        store.disableFields([toAffect], true);
+      }
+    }
+
     addDataElements(['BoM0YNDBUdy', 'VxTZaIwIfS8', 'gtPZBBL7rhj', 'UazX97Kqd3p'], form, 'dr6OgCteAUm');
     addDataElements(['IZdmRdDWZpX', 'klxMWtWKP3v', 'Qs4QGZ9HoDC', 'tSZLIplM0Xg'], form, 'DT02jGe9med');
     addDataElements(['dr6OgCteAUm', 'DT02jGe9med'], form, 'OmOmbzDM4iZ');
@@ -248,7 +259,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     convert(rate, 'gtPZBBL7rhj', 'kJPWSamlUAK', form);
     convert(rate, 'UazX97Kqd3p', 'puXos8qdR9S', form);
     convert(rate, 'dr6OgCteAUm', 'j8heE20u1T9', form);
-
 
     convert(rate, 'IZdmRdDWZpX', 'm0MhcXsb60u', form);
     convert(rate, 'klxMWtWKP3v', 'mybOLY5lriU', form);
@@ -278,12 +288,12 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     const ac = Number(form.getFieldValue('CiOsAwrfUaP')) || 0;
 
     const transportGrant = (i * 3 * c / 40) + (j * 3 * 4) + (g * h * k) + (v * t * u);
-    const mpEventSnaks = e * l;
+    const mpEventSnacks = e * l;
     const tgjEventMeals = r * w;
     const admin = m * c;
 
     form.setFieldsValue({ WyNHgVjv97i: Math.ceil(transportGrant) })
-    form.setFieldsValue({ PTeqHUCZVFd: Math.ceil(mpEventSnaks) })
+    form.setFieldsValue({ PTeqHUCZVFd: Math.ceil(mpEventSnacks) })
     form.setFieldsValue({ qP3onIBOoJa: Math.ceil(tgjEventMeals) })
     form.setFieldsValue({ fFe4xMmrPZZ: Math.ceil(admin) })
 
@@ -360,7 +370,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       return [k, v]
     });
 
-
     if (changedValues.sBHTpu7aWMW === true) {
       Object.entries(store.inheritable).forEach(([de, value]) => {
         const val = store.getTemplateData[value];
@@ -368,15 +377,20 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
           form.setFieldsValue({ [de]: val });
         }
       });
+      store.disableFields(Object.keys(store.affected), false);
       store.disableFields(Object.keys(store.inheritable), true);
+
+      Object.entries(store.affected).forEach(([k, v]) => {
+        if (String(allValues[k]) === 'true') {
+          store.disableFields([String(v)], false);
+        }
+      })
+
     } else if (form.getFieldValue('sBHTpu7aWMW') === false) {
+      store.disableFields(Object.keys(store.affected), true);
       store.disableFields(Object.keys(store.inheritable), false);
     }
-
     setValues(fromPairs(data));
-    console.log(changedValues)
-
-
   }
 
   const onBlur = (id: string) => async (e: any) => {
@@ -399,6 +413,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     store.changeClassName(id, 'bg-green-400');
     await store.addEvent(events, false);
     store.changeClassName(id, '');
+    console.log(store.processedTeamGrantData);
 
   }
 
@@ -415,7 +430,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       program: store.currentProgram,
       trackedEntityInstance: store.enrollment.trackedEntityInstance
     }];
-    await store.addTrackedEntityInstance2(trackedEntityInstances);
+    await store.addTrackedEntityInstance(trackedEntityInstances);
     await store.queryTrackedEntityInstance(store.enrollment.trackedEntityInstance, false)
   }
 
@@ -436,11 +451,11 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
           store.setCurrentProgramStage('nNMTjdvTh7r')();
           history.push('/')
         }}>Back</Button>
-        {/* <div className="w-1/2">
+        <div className="w-1/2 ml-4">
           <Select style={{ width: "60%" }} allowClear={true} onChange={store.setSelectedProgram} size="large" value={store.currentProgram}>
             {store.orgUnitPrograms.map((p: any) => <Option value={p.id} key={p.id}>{p.name}</Option>)}
           </Select>
-        </div> */}
+        </div>
       </div>
       <div className="data">
         <Menu
@@ -450,9 +465,10 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         >
           {store.selectedProgram.programStages.map((stage: any) => <Menu.Item key={stage.id} onClick={store.setCurrentProgramStage(stage.id)}>{stage.name}</Menu.Item>)}
         </Menu>
-        <div className="">
+        <div className="fixed-height">
           {store.isRepeatable ? <div>
             <Table
+              bordered={true}
               className="p-0 m-0"
               rowClassName={() => "cursor-pointer"}
               columns={store.programStageColumns}
@@ -469,16 +485,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
                   return record.event !== 'total'
                 }
               }}
-            // onChange={store.handleChange}
-            // style={{ textTransform: "uppercase", fontSize: 12 }}
-            // loading={store.loading}
-            // pagination={{
-            //   showSizeChanger: true,
-            //   total: store.total,
-            //   pageSize: store.pageSize,
-            //   showQuickJumper: true,
-            //   pageSizeOptions: ["5", "10", "15", "20", "25", "50", "100"],
-            // }}
             />
           </div> : store.currentProcessedData.length > 0 ? <EventForm initialValues={store.getTemplateData} onValuesChange={onValuesChange} onBlur={onBlur} /> : null}
         </div>

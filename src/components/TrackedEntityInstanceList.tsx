@@ -24,7 +24,7 @@ export const TrackedEntityInstanceList = observer(() => {
   };
 
   if (store.loading) {
-    return <Loading />
+    return <Loading/>
   }
 
   return <div>
@@ -36,6 +36,7 @@ export const TrackedEntityInstanceList = observer(() => {
       bodyStyle={{ overflow: "auto", padding: 0, margin: 0 }}
     >
       <Table
+        bordered={true}
         rowClassName={() => "cursor-pointer"}
         onRow={(record, rowIndex) => {
           return {

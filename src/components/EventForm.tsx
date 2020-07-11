@@ -22,9 +22,10 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
   const [form] = Form.useForm();
   const store = useStore();
   const eventDate = { displayFormName: 'Todays Date', valueType: 'DATE', id: 'eventDate' }
-  const completeEvent = () => {
-    console.log(form.getFieldsValue());
-  }
+
+  // const completeEvent = () => {
+  //   console.log(form.getFieldsValue());
+  // }
 
   store.setForm(form);
 
@@ -33,7 +34,7 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
       <ItemField key="eventDate" item={eventDate} onBlur={onBlur} />
       <Collapse accordion={true} defaultActiveKey={[store.currentProgramStageSections[0].id]} className="m-0 p-0">
         {store.currentProgramStageSections.map((ps: any) => {
-          return <Panel header={ps.name} key={ps.id}>
+          return <Panel header={ps.name} key={ps.id} >
             {ps.dataElements.map((de: any, i: number) => {
               const otherClasses = i % 2 === 0 ? 'bg-white' : 'bg-gray-100'
               return <ItemField key={de.id} item={de} onBlur={onBlur} otherClasses={otherClasses} />
