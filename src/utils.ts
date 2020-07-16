@@ -49,12 +49,12 @@ export const addValues = (dataElements: string[], dataValues: any, affectedDataE
   dataElements.forEach((de: string) => {
     sum = sum + (Number(dataValues[de]) || 0)
   });
-  return { ...dataValues, [affectedDataElement]: sum }
+  return { ...dataValues, [affectedDataElement]: Math.ceil(sum) }
 }
 
 export const convertValues = (rate: number, dataElement: string, affectedDataElement: string, dataValues: any) => {
   const value = Number(dataValues[dataElement]) || 0;
-  return { ...dataValues, [affectedDataElement]: value / rate }
+  return { ...dataValues, [affectedDataElement]: Math.ceil(value / rate) }
 }
 
 export const performOperation = (dataValues: any, leftElement: string, rightElement: string, affectedElement: string, op: string) => {

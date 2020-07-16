@@ -1,4 +1,4 @@
-import { flatten, fromPairs, keys, sum } from 'lodash';
+import { flatten, fromPairs, keys, sum, isEmpty, invert } from 'lodash';
 import { action, computed, observable } from "mobx";
 import moment from 'moment';
 import React from 'react';
@@ -79,7 +79,7 @@ class Store {
     PNleJ4ejsuW: 'EylCEWx1bYJ',
     rE38dvsAtEw: 'NlKNTt8lRtc',
 
-    PGoc4AXIskG: 'H6lgwocDrTy',
+    PGoc4AXIskG: 'sFBv4FIYydi',
     zCSkGEoyFkV: 'GeiyLk2U1qI',
     fLD4wuUVi1i: 'TX3vq0b6f8R',
     cEQikKW778D: 'H6lgwocDrTy'
@@ -102,7 +102,12 @@ class Store {
   }
   @action setForm = (val: any) => this.form = val;
   @action setCounties = (val: any) => this.countries = val;
-  @action setCurrentProgramStage = (stage: any) => () => this.currentProgramStage = stage;
+  @action setCurrentProgramStage = (stage: any) => () => {
+    this.currentProgramStage = stage;
+    if (stage === 'nNMTjdvTh7r' && !isEmpty(this.getTemplateData)) {
+      this.setCurrentEvent(this.getTemplateData.event)
+    }
+  }
   @action setCurrentEvent = (val: any) => this.currentEvent = val;
   @action setCurrentPage = (val: string) => this.currentPage = val;
   @action setPrograms = (val: any) => this.programs = val;
@@ -113,13 +118,13 @@ class Store {
     this.hiddenSections = [...this.hiddenSections, val]
   }
   @action hideDataElement = (val: string) => {
-    this.hiddenDataElements = [...this.hiddenDataElements, val]
+    this.hiddenDataElements = [...this.hiddenDataElements, `${this.currentEvent}-${val}`]
   }
   @action unHideSection = (val: string) => {
     this.hiddenSections = this.hiddenSections.filter((v: string) => v !== val);
   }
   @action unHideDataElement = (val: string) => {
-    this.hiddenDataElements = this.hiddenDataElements.filter((v: string) => v !== val);
+    this.hiddenDataElements = this.hiddenDataElements.filter((v: string) => v !== `${this.currentEvent}-${val}`);
   }
 
   @action setSelectedOrgUnit = async (selectedKeys: any[], info: any) => {
@@ -139,12 +144,15 @@ class Store {
     }
   }
 
-  @action disableFields(ds: string[], disabled: boolean) {
+  @action disableFields(ds: string[], disabled: boolean, remove: boolean = false) {
     if (this.selectedProgram && this.currentProgramStageDetails) {
       const programStageSections = this.currentProgramStageDetails.programStageSections.map((ps: any) => {
         let { dataElements, ...others } = ps;
         dataElements = dataElements.map((de: any) => {
-          if (ds.indexOf(de.id) !== -1) {
+          if (remove) {
+            return { ...de, disabled: false }
+          }
+          if (ds.indexOf(de.id) !== -1 || this.disabledElements.indexOf(de.id) !== -1) {
             return { ...de, disabled }
           }
           return de
@@ -166,7 +174,7 @@ class Store {
       const programStageSections = this.currentProgramStageDetails.programStageSections.map((ps: any) => {
         let { dataElements, ...others } = ps;
         dataElements = dataElements.map((de: any) => {
-          if (ds === de.id) {
+          if (ds === `${this.currentEvent}-${de.id}`) {
             return { ...de, className }
           }
           return de
@@ -199,6 +207,9 @@ class Store {
       const data = await this.engine.query(query);
       this.instance = data.instance;
       this.selectedOrgUnit = this.instance.orgUnit;
+      if (this.currentProgramStage === 'nNMTjdvTh7r' && !isEmpty(this.getTemplateData)) {
+        this.currentEvent = this.getTemplateData.event;
+      }
     } catch (e) {
       console.log(e);
     }
@@ -362,7 +373,7 @@ class Store {
         return { ...others, events }
       });
       this.instance = { ...this.instance, enrollments };
-      console.log(JSON.stringify(this.instance));
+      // console.log(JSON.stringify(this.instance));
     }
   }
 
@@ -552,19 +563,43 @@ class Store {
   @computed get programStageColumns() {
     if (this.isRepeatable) {
       return this.currentProgramStageDetails.programStageDataElements.filter((psde: any) => psde.displayInReports).map((a: any) => {
+        const clss = String(a.dataElement.valueType).indexOf('INTEGER') !== -1 ? 'text-right' : 'text-left'
         return {
           key: a.dataElement.id,
           title: a.dataElement.displayFormName,
           dataIndex: a.dataElement.id,
-          sorter: true,
+          // sorter: true,
           render: (text: any, row: any) => {
-            return <div>{row[a.dataElement.id]}</div>;
+            const result = row[`${row.event}-${a.dataElement.id}`] || text
+            if (a.dataElement.optionSet) {
+              const option = a.dataElement.optionSet.options.find((o: any) => o.code === result);
+              if (option) {
+                return option.name
+              }
+            }
+            return <div className={clss}>{result}</div>;
           },
         };
-      })
+      });
     }
     return []
   }
+
+  // @computed get optionSets(){
+  //   if(this.currentProgramStageDetails){
+  //     return this.currentProgramStageDetails.programStageDataElements.filter((psde: any) => psde.displayInReports).map((a: any) => {
+  //       return {
+  //         key: a.dataElement.id,
+  //         title: a.dataElement.displayFormName,
+  //         dataIndex: a.dataElement.id,
+  //         // sorter: true,
+  //         render: (text: any, row: any) => {
+  //           return <div>{row[`${row.event}-${a.dataElement.id}`] || text}</div>;
+  //         },
+  //       };
+  //     })
+  //   }
+  // }
 
   @computed get dateFields() {
 
@@ -582,17 +617,22 @@ class Store {
 
   @computed get currentProcessedData() {
     return this.currentData.map((e: any) => {
-      const { eventDate, dataValues, event } = e;
+      const { eventDate, dataValues, event, attributeCategoryOptions, status } = e;
+      const aco = String(attributeCategoryOptions).split(';');
       const realValues = fromPairs(dataValues.map((dv: any) => {
         let value = dv.value;
         if (this.dateFields.indexOf(dv.dataElement) !== -1) {
           value = moment(value)
         }
-        return [dv.dataElement, value]
+        return [`${event}-${dv.dataElement}`, value]
       }));
-      return { ...realValues, eventDate: moment(eventDate), event }
+      return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, wlEpNQNoR9F: aco[0], K1YcxEoSq1B: aco[1], status }
     });
   }
+
+  // @computed get currentEventData(){
+  //   return this.currentProcessedData.find((d:any)=>)
+  // }
 
   @computed get processedTeamGrantData() {
     return this.teamGrantData.map((e: any) => {
@@ -605,10 +645,15 @@ class Store {
         return [dv.dataElement, value]
       }));
       if (realValues.AKcvH7719Wp && realValues.AKcvH7719Wp === 'Yes') {
-        const rate = this.getTemplateData['vz7oWyEKTv2'] || 1
+        const { event: templateEvent } = this.getTemplateData;
+        const rate = this.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1
+        const invertedChecked = invert(store.affected);
         Object.entries(this.inheritable).forEach(([de, value]) => {
-          const val = this.getTemplateData[value];
-          realValues = { ...realValues, [de]: val }
+          const hasChecked = invertedChecked[de];
+          const val = this.getTemplateData[`${templateEvent}-${value}`];
+          if ((hasChecked !== undefined && String(realValues[hasChecked]) === 'false') || hasChecked === undefined) {
+            realValues = { ...realValues, [de]: val }
+          }
         });
 
         realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
@@ -656,7 +701,7 @@ class Store {
         const aa = Number(realValues['rE38dvsAtEw']) || 0;
         const ac = Number(realValues['CiOsAwrfUaP']) || 0;
 
-        const transportGrant = (i * 3 * c / 40) + (j * 3 * 4) + (g * h * k) + (v * t * u);
+        const transportGrant = (i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u);
         const mpEventSnaks = e * l;
         const tgjEventMeals = r * w;
         const admin = m * c;
@@ -683,7 +728,7 @@ class Store {
   }
 
   @computed get total() {
-    const values = this.currentProcessedData.filter((dv: any) => keys(dv).indexOf('g0K25Yvn0IH') !== -1 && !!dv.g0K25Yvn0IH).map((dv: any) => Number(dv.g0K25Yvn0IH));
+    const values = this.currentProcessedData.filter((dv: any) => keys(dv).indexOf(`${dv.event}-g0K25Yvn0IH`) !== -1 && !!dv[`${dv.event}-g0K25Yvn0IH`]).map((dv: any) => Number(dv[`${dv.event}-g0K25Yvn0IH`]));
     return { g0K25Yvn0IH: sum(values), gIyHDZCbUFN: 'Total', event: 'total' };
   }
 
@@ -784,15 +829,16 @@ class Store {
         return event.programStage === 'nNMTjdvTh7r'
       });
       if (e) {
-        const { eventDate, event, dataValues } = e
+        const { eventDate, dataValues, status, event, attributeCategoryOptions } = e;
+        const aco = String(attributeCategoryOptions).split(';');
         const realValues = fromPairs(dataValues.map((dv: any) => {
           let value = dv.value;
           if (this.dateFields.indexOf(dv.dataElement) !== -1) {
             value = moment(value)
           }
-          return [dv.dataElement, value]
+          return [`${event}-${dv.dataElement}`, value]
         }));
-        return { ...realValues, eventDate: moment(eventDate), event }
+        return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, wlEpNQNoR9F: aco[0], K1YcxEoSq1B: aco[1], status }
       }
       return {}
     }
