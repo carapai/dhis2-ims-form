@@ -30,11 +30,11 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
   const eventDate = { displayFormName: 'Todays Date', valueType: 'DATE', id: `${event}-eventDate`, disabled: disabledTwo }
 
   const complete = async () => {
-    const { event, wlEpNQNoR9F, K1YcxEoSq1B, status, ...rest } = store.currentEventData
+    const { event, status, ...rest } = store.currentEventData
     const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
       return [String(key).split('-')[1], value]
     }));
-    const { eventDate, ...others }: any = realValues;
+    const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, ...others }: any = realValues;
     const dataValues = Object.entries(others).map(([dataElement, value]) => {
       let currentValue: any = value;
       if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -43,25 +43,29 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
       return { dataElement, value: currentValue };
     });
 
-    const events = [{
+    let ev: any = {
       dataValues,
       eventDate: eventDate.format('YYYY-MM-DD'),
-      attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
       event,
       ...store.enrollment,
       status: status === 'ACTIVE' ? 'COMPLETED' : 'ACTIVE'
-    }];
+    }
+
+    if (wlEpNQNoR9F && K1YcxEoSq1B) {
+      ev = { ...ev, attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`, }
+    }
+    const events = [ev];
     await store.addEvent(events, false);
   }
 
   return (<Form onValuesChange={onValuesChange(form)} {...layout} form={form} name="control-hooks" size="large" initialValues={initialValues} className="m-0 p-0">
     <ItemField key="eventDate" item={eventDate} onBlur={onBlur} />
     <Collapse accordion={true} defaultActiveKey={[store.currentProgramStageSections[0].id]} className="m-0 p-0">
-      <Panel header="Type And Name" key="attributeCategoryOptions">
+      <Panel header="Team Type And Name" key="attributeCategoryOptions">
         {store.eventModalForm.slice(1).map((ps: any) => {
           const disabled = ps.disabled || status === 'COMPLETED';
-          ps = { ...ps, disabled }
-          return <ItemField key={ps.id} item={ps} onBlur={onBlur} />
+          ps = { ...ps, disabled, id: `${event}-${ps.id}` }
+          return <ItemField key={`${event}-${ps.id}`} item={ps} onBlur={onBlur} />
         })}
       </Panel>
       {store.currentProgramStageSections.map((ps: any) => {
@@ -77,7 +81,7 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
     </Collapse>
     <div className="mt-3 flex">
       <div>
-        <Button htmlType="button" type="primary" className="bg-red-700 border-0 hover:bg-red-400" onClick={complete}>
+        <Button htmlType="button" type="primary" className="border-0" onClick={complete}>
           {initialValues.status === 'ACTIVE' ? 'Complete' : 'Incomplete'}
         </Button>
       </div>

@@ -44,10 +44,34 @@ export const TrackedEntityInstances = observer(() => {
     history.push(`/${trackedEntityInstance}/${store.currentProgram}`)
   };
 
+  function onFocus() {
+    console.log('focus');
+  }
+
+  function onSearch(val: any) {
+    console.log('search:', val);
+  }
+
   return (
     <div className="instances">
       <div className="bg-gray-100 p-2">
-        <Search size="large" style={{ marginBottom: 8 }} placeholder="Search" onChange={store.onChange} />
+        {/* <Search size="large" style={{ marginBottom: 8 }} placeholder="Search" onChange={store.onChange} /> */}
+        <Select
+          size="large"
+          showSearch
+          style={{ width: '100%', marginBottom: 8 }}
+          placeholder="Select or search country"
+          optionFilterProp="children"
+          onChange={store.onChange}
+          onFocus={onFocus}
+          onSearch={onSearch}
+          filterOption={(input, option: any) =>
+            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }
+        >
+          {store.countries.map((c: any) => <Option key={c.key} value={c.key}>{c.title}</Option>)}
+
+        </Select>
         <div style={{ overflow: 'auto', height: 700 }}>
           <Tree
             selectedKeys={store.selectedKeys}

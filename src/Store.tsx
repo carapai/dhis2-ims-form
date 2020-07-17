@@ -24,6 +24,7 @@ class Store {
   @observable checkedKeys: string[] = [];
   @observable autoExpandParent: boolean = true;
   @observable form: any;
+  @observable expandedRows: string[] = []
 
   @observable disabledElements = [
     "WyNHgVjv97i",
@@ -82,7 +83,10 @@ class Store {
     PGoc4AXIskG: 'sFBv4FIYydi',
     zCSkGEoyFkV: 'GeiyLk2U1qI',
     fLD4wuUVi1i: 'TX3vq0b6f8R',
-    cEQikKW778D: 'H6lgwocDrTy'
+    cEQikKW778D: 'H6lgwocDrTy',
+
+    tyCCqrl6t1v: 'aRfwyyBIHjp',
+    Z9LUqA3qR3i: 'hJDbRV78VWp'
   }
 
   @observable hiddenSections: string[] = [];
@@ -100,10 +104,13 @@ class Store {
   @action setEngine = async (engine: any) => {
     this.engine = engine;
   }
+
+  @action setExpandedRows = (events: string[]) => this.expandedRows = events
   @action setForm = (val: any) => this.form = val;
   @action setCounties = (val: any) => this.countries = val;
   @action setCurrentProgramStage = (stage: any) => () => {
     this.currentProgramStage = stage;
+    this.setExpandedRows([]);
     if (stage === 'nNMTjdvTh7r' && !isEmpty(this.getTemplateData)) {
       this.setCurrentEvent(this.getTemplateData.event)
     }
@@ -410,22 +417,33 @@ class Store {
     this.autoExpandParent = false;
   };
 
-  @action onChange = (e: any) => {
-    const { value } = e.target;
-    if (value) {
-      const expandedKeys: any = this.countries.map(item => {
-        if (String(item.title).toLowerCase().includes(String(value).toLowerCase())) {
-          return getParentKey(item.key, this.userOrgUnits);
-        }
-        return null;
-      }).filter((item, i, self) => item && self.indexOf(item) === i);
+  // @action onChange = (e: any) => {
+  //   const { value } = e.target;
+  //   if (value) {
+  //     const expandedKeys: any = this.countries.map(item => {
+  //       if (String(item.title).toLowerCase().includes(String(value).toLowerCase())) {
+  //         return 
+  //       }
+  //       return null;
+  //     }).filter((item, i, self) => item && self.indexOf(item) === i);
 
-      this.expandedKeys = expandedKeys;
+  //     this.expandedKeys = expandedKeys;
+  //     this.autoExpandParent = true;
+  //   } else {
+  //     this.expandedKeys = ['MAGkzcmHxwc'];
+  //   }
+  // };
+
+  @action onChange = async (value: any) => {
+    if (value) {
+      this.expandedKeys = [getParentKey(value, this.userOrgUnits)];
       this.autoExpandParent = true;
+      this.selectedKeys = [value]
+      await this.setSelectedOrgUnit(this.selectedKeys, "")
     } else {
       this.expandedKeys = ['MAGkzcmHxwc'];
     }
-  };
+  }
 
   // @action updateEvent = (dv: any, v: any) => {
   //   if (this.instance) {
@@ -626,13 +644,11 @@ class Store {
         }
         return [`${event}-${dv.dataElement}`, value]
       }));
-      return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, wlEpNQNoR9F: aco[0], K1YcxEoSq1B: aco[1], status }
+      const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+      const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+      return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, status }
     });
   }
-
-  // @computed get currentEventData(){
-  //   return this.currentProcessedData.find((d:any)=>)
-  // }
 
   @computed get processedTeamGrantData() {
     return this.teamGrantData.map((e: any) => {
@@ -838,7 +854,10 @@ class Store {
           }
           return [`${event}-${dv.dataElement}`, value]
         }));
-        return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, wlEpNQNoR9F: aco[0], K1YcxEoSq1B: aco[1], status }
+        // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, wlEpNQNoR9F: aco[0], K1YcxEoSq1B: aco[1], status }
+        const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+        const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+        return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, status }
       }
       return {}
     }

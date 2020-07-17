@@ -31,7 +31,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
   const store = useStore();
   const [visible, setVisible] = useState<boolean>(false);
   const { instance, program } = useParams();
-  const [expandedRows, setExpandedRows] = useState<any[]>([]);
   const [values, setValues] = useState<any>();
   const history = useHistory();
 
@@ -66,7 +65,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     await store.queryTrackedEntityInstance(store.enrollment.trackedEntityInstance, false);
     store.setCurrentEvent(event);
     store.disableFields([], false, true)
-    setExpandedRows([event]);
+    store.setExpandedRows([event]);
     setVisible(false);
   }
 
@@ -74,7 +73,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     store.setCurrentEvent(record.event);
     const { event: templateEvent } = store.getTemplateData;
     if (expanded) {
-      setExpandedRows([record.event]);
+      store.setExpandedRows([record.event]);
       if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) === 0) {
         store.hideSection('JFpLMcht3jv')
         store.hideSection('cYE1pL5JvWE')
@@ -145,18 +144,18 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.disableFields([], false, true);
       }
     } else {
-      setExpandedRows([]);
+      store.setExpandedRows([]);
     }
   }
 
   const insertRow = async (id: string, vals: any) => {
     const values = fromPairs(vals);
     if (values) {
-      const { event, wlEpNQNoR9F, K1YcxEoSq1B, status, ...rest } = values
+      const { event, status, ...rest } = values
       const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
         return [String(key).split('-')[1], value]
       }));
-      const { eventDate, ...others }: any = realValues;
+      const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, ...others }: any = realValues;
       const dataValues = Object.entries(others).map(([dataElement, value]) => {
         let currentValue: any = value;
         if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -165,14 +164,20 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         return { dataElement, value: currentValue };
       });
 
-      const events = [{
+      let ev: any = {
         dataValues,
         eventDate: eventDate.format('YYYY-MM-DD'),
-        attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
         status,
         event,
         ...store.enrollment
-      }];
+      }
+
+      if (wlEpNQNoR9F && K1YcxEoSq1B) {
+        ev = {
+          ...ev, attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
+        }
+      }
+      const events = [ev];
       store.changeClassName(id, 'bg-green-400');
       await store.addEvent(events, false);
       store.changeClassName(id, '');
@@ -181,11 +186,11 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
 
   const insertValues = async (id: string) => {
     if (values) {
-      const { event, ...rest } = values
+      const { event, status, ...rest } = values
       const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
         return [String(key).split('-')[1], value]
       }));
-      const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, status, ...others }: any = realValues;
+      const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, ...others }: any = realValues;
       const dataValues = Object.entries(others).map(([dataElement, value]) => {
         let currentValue: any = value;
         if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -194,14 +199,21 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         return { dataElement, value: currentValue };
       });
 
-      const events = [{
+      let ev: any = {
         dataValues,
         eventDate: eventDate.format('YYYY-MM-DD'),
-        event,
         status,
-        attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
+        event,
         ...store.enrollment
-      }];
+      }
+
+      if (wlEpNQNoR9F && K1YcxEoSq1B) {
+        ev = {
+          ...ev, attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
+        }
+      }
+
+      const events = [ev];
       store.changeClassName(id, 'bg-green-400');
       await store.addEvent(events, false);
       store.changeClassName(id, '');
@@ -459,6 +471,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       }
 
       if (key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) === 'true') {
+        console.log('Are we here or there')
         Object.entries(store.inheritable).forEach(([de, value]) => {
           const val = store.getTemplateData[`${templateEvent}-${value}`];
           if (val) {
@@ -564,7 +577,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
                 expandedRowRender: (record: any) => {
                   return <EventForm event={record.event} initialValues={record} status={record.status} onValuesChange={onValuesChange} onBlur={onBlur} />
                 },
-                expandedRowKeys: expandedRows,
+                expandedRowKeys: store.expandedRows,
                 onExpand: onExpand,
                 rowExpandable: (record: any) => {
                   return record.event !== 'total'
