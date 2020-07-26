@@ -50,5 +50,4 @@ export const EventModalForm: FC<EventFormProps> = observer(({ initialValues = {}
       </Form>
     </Modal >
   )
-
 })

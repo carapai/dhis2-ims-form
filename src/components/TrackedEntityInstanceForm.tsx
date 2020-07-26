@@ -28,8 +28,8 @@ export const TrackedEntityInstanceForm: FC<FormProps> = observer(({ onFinish, sh
   }
 
   const insert = (values: any) => {
-    form.resetFields();
     onFinish(values);
+    form.resetFields();
   }
 
   const cancel = () => {

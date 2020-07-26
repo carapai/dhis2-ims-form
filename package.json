@@ -17,7 +17,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "antd": "^4.3.5",
+    "antd": "^4.4.3",
     "autoprefixer": "^9.8.4",
     "babel-plugin-macros": "^2.8.0",
     "d2": "^31.8.1",
@@ -61,7 +61,7 @@
     ]
   },
   "manifest.webapp": {
-    "version": "0.2.4",
+    "version": "0.3.1",
     "name": "OCC Country Grant Tracker",
     "description": "OCC Country Grant Tracker",
     "launch_path": "index.html",

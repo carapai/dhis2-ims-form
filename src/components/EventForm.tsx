@@ -20,21 +20,22 @@ const layout = {
 
 const { Panel } = Collapse;
 
-export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValuesChange, onBlur, event, status = 'ACTIVE' }) => {
+export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValuesChange, onBlur, event }) => {
   const [form] = Form.useForm();
   const store = useStore();
   store.setForm(form);
 
-  const disabledTwo = status === 'COMPLETED';
+  const disabledTwo = initialValues[`${event}-status`] === 'COMPLETED';
 
   const eventDate = { displayFormName: 'Todays Date', valueType: 'DATE', id: `${event}-eventDate`, disabled: disabledTwo }
+  // const status = { displayFormName: 'Status', valueType: 'TEXT', id: `${event}-status`, disabled: disabledTwo, hidden: true }
 
   const complete = async () => {
-    const { event, status, ...rest } = store.currentEventData
+    const { event, ...rest } = store.currentEventData
     const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
       return [String(key).split('-')[1], value]
     }));
-    const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, ...others }: any = realValues;
+    const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, status, ...others }: any = realValues;
     const dataValues = Object.entries(others).map(([dataElement, value]) => {
       let currentValue: any = value;
       if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -60,20 +61,15 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
 
   return (<Form onValuesChange={onValuesChange(form)} {...layout} form={form} name="control-hooks" size="large" initialValues={initialValues} className="m-0 p-0">
     <ItemField key="eventDate" item={eventDate} onBlur={onBlur} />
+    {/* <ItemField key="status" item={status} onBlur={onBlur} /> */}
     <Collapse accordion={true} defaultActiveKey={[store.currentProgramStageSections[0].id]} className="m-0 p-0">
-      <Panel header="Team Type And Name" key="attributeCategoryOptions">
-        {store.eventModalForm.slice(1).map((ps: any) => {
-          const disabled = ps.disabled || status === 'COMPLETED';
-          ps = { ...ps, disabled, id: `${event}-${ps.id}` }
-          return <ItemField key={`${event}-${ps.id}`} item={ps} onBlur={onBlur} />
-        })}
-      </Panel>
       {store.currentProgramStageSections.map((ps: any) => {
         return <Panel header={ps.name} key={ps.id} >
           {ps.dataElements.map((de: any, i: number) => {
             const otherClasses = i % 2 === 0 ? 'bg-white' : 'bg-gray-100';
-            const disabled = de.disabled || status === 'COMPLETED'
+            const disabled = de.disabled || disabledTwo
             de = { ...de, id: `${event}-${de.id}`, disabled }
+
             return <ItemField key={`${event}-${de.id}`} item={de} onBlur={onBlur} otherClasses={otherClasses} />
           })}
         </Panel>
@@ -81,9 +77,13 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
     </Collapse>
     <div className="mt-3 flex">
       <div>
-        <Button htmlType="button" type="primary" className="border-0" onClick={complete}>
-          {initialValues.status === 'ACTIVE' ? 'Complete' : 'Incomplete'}
-        </Button>
+        {/* <Tooltip placement="topLeft" title={initialValues[`${event}-status`] === 'ACTIVE' ? 'Complete event to disable data entry' : 'Un complete event to enable data entry'}> */}
+        <Popconfirm title={initialValues[`${event}-status`] === 'ACTIVE' ? 'Are you sure to complete event to disable data entry' : 'Are you sure to un complete event to enable data entry'} onConfirm={() => complete()}>
+          <Button htmlType="button" type="primary" className="border-0">
+            {initialValues[`${event}-status`] === 'ACTIVE' ? 'Complete' : 'Incomplete'}
+          </Button>
+        </Popconfirm>
+        {/* </Tooltip> */}
       </div>
       <div className="ml-auto">
         <Tooltip placement="topLeft" title="Delete Event">

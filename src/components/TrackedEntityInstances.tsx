@@ -1,4 +1,4 @@
-import { Button, Input, Select, Tree } from "antd";
+import { Button, Select, Tree } from "antd";
 import { observer } from "mobx-react";
 import React from "react";
 import { useHistory } from 'react-router-dom';
@@ -9,8 +9,6 @@ import { TrackedEntityInstanceList } from "./TrackedEntityInstanceList";
 import { Welcome } from "./Welcome";
 
 const { Option } = Select
-const { Search } = Input;
-
 
 
 export const TrackedEntityInstances = observer(() => {
