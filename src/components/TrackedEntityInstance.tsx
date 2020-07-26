@@ -127,9 +127,9 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) === 'true') {
         const invertedChecked = invert(store.affected);
         Object.entries(store.inheritable).forEach(([de, value]) => {
-          const val = store.getTemplateData[`${templateEvent}-${value}`];
           const original = record[`${store.currentEvent}-${de}`]
           const hasChecked = invertedChecked[de];
+          let val = store.getTemplateData[`${templateEvent}-${value}`];
           if (hasChecked !== undefined && String(record[`${store.currentEvent}-${hasChecked}`]) === 'true') {
             store.disableFields([de], false);
             store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: original });
@@ -140,6 +140,13 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
             }
           }
         });
+
+        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+        const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
+        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+        store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+        console.log(templateContacts, templateMPS, teamGrantMPS);
       } else {
         store.disableFields([], false, true);
       }
@@ -280,12 +287,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         Object.entries(store.inheritable).forEach(([de, value]) => {
           const hasChecked = invertedChecked[de];
           let val = store.getTemplateData[`${templateEvent}-${value}`];
-          if (de === 'pin6sarb8cc') {
-            const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-            const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-            const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
-            val = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-          }
           if (val && ((hasChecked !== undefined && String(form.getFieldValue(`${store.currentEvent}-${hasChecked}`)) !== 'true') || hasChecked === undefined)) {
             form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
           }
@@ -444,6 +445,8 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       addDataElements([`${store.currentEvent}-iSDnwU0GRAL`, `${store.currentEvent}-JZo5Iw4geHp`], form, `${store.currentEvent}-g0K25Yvn0IH`)
       addDataElements([`${store.currentEvent}-LaBr26m8aNY`, `${store.currentEvent}-j8heE20u1T9`], form, `${store.currentEvent}-F4PyCcIgvZ1`)
 
+
+
       if (key === `${store.currentEvent}-YRk2FTJDPx3` && Number(value) === 0) {
         store.hideSection('JFpLMcht3jv')
         store.hideSection('cYE1pL5JvWE')
@@ -489,6 +492,14 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) !== 0) {
           store.unHideSection('cYE1pL5JvWE');
         }
+      }
+
+      if (String(form.getFieldValue(`${store.currentEvent}-sBHTpu7aWMW`)) === 'true') {
+        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+        const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
+        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+        form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts });
       }
     }
 

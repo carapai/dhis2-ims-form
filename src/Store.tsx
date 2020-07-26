@@ -54,7 +54,8 @@ class Store {
     "dr6OgCteAUm",
     "gY8m7JwBy9p",
     "eiHYxW2Ybjv",
-    "CiOsAwrfUaP"
+    "CiOsAwrfUaP",
+    "pin6sarb8cc"
   ]
 
   @observable inheritable = {
@@ -65,7 +66,7 @@ class Store {
     WEV1hAZk1zl: 'RU20DkMfdnO',
     oMZGOrVDzlQ: 'JbAG8Lkkd7i',
     Jhix7kMMW5f: 'uGhQNyatC3M',
-    pin6sarb8cc: 'PGCvDSP3Y9S',
+    // pin6sarb8cc: 'PGCvDSP3Y9S',
     sqckP81B8Go: 'lum3A7SVxKV',
     YUH3uoLn1me: 'uV7btUiA1BV',
 
@@ -653,17 +654,15 @@ class Store {
         Object.entries(this.inheritable).forEach(([de, value]) => {
           const hasChecked = invertedChecked[de];
           let val = this.getTemplateData[`${templateEvent}-${value}`];
-
-          if (de === 'pin6sarb8cc') {
-            const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-            const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-            const teamGrantMPS = Number(realValues['W83hRUEbXjo']);
-            val = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-          }
           if ((hasChecked !== undefined && String(realValues[hasChecked]) !== 'true') || hasChecked === undefined) {
+            if (de === 'pin6sarb8cc') {
+              console.log('Yes')
+            }
             realValues = { ...realValues, [de]: val }
           }
         });
+
+
 
         realValues = performOperation(realValues, 'tyCCqrl6t1v', 'gsPwEWxXI6e', 'W83hRUEbXjo', '/');
         realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
@@ -730,7 +729,15 @@ class Store {
         realValues = addValues(['KLzfFndIPqo', 'lOzK4T2eTga', 'M9pi5hjxhWr', 'awxAGJwj83W'], realValues, 'iSDnwU0GRAL')
 
         realValues = addValues(['j8heE20u1T9', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
-        realValues = addValues(['LaBr26m8aNY', 'iSDnwU0GRAL'], realValues, 'F4PyCcIgvZ1')
+        realValues = addValues(['LaBr26m8aNY', 'iSDnwU0GRAL'], realValues, 'F4PyCcIgvZ1');
+
+        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+        const teamGrantMPS = Number(realValues['W83hRUEbXjo']);
+        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+
+        realValues = { ...realValues, pin6sarb8cc: occContacts }
+
 
       }
       return { ...realValues, eventDate: moment(eventDate), event, status }
