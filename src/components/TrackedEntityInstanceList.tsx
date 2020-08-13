@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useStore } from "../Context";
 import Loading from "./Loading";
+import { ErrorMessage } from "./Error";
 
 export const TrackedEntityInstanceList = observer(() => {
   const store = useStore();
@@ -22,6 +23,10 @@ export const TrackedEntityInstanceList = observer(() => {
   const onClose = () => {
     setVisible(false);
   };
+
+  if (store.error !== null) {
+    return <ErrorMessage message={store.error?.message} />
+  }
 
   if (store.loading) {
     return <Loading/>

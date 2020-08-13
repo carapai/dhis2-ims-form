@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash'
 /**
  * @module uid
  *
@@ -7,7 +8,6 @@
  *
  * This module is used to generate and validate DHIS2 uids. A valid DHIS2 uid is a 11 character string which starts with a letter from the ISO basic Latin alphabet.
  */
-
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';
 const letters = abc.concat(abc.toUpperCase());
@@ -99,3 +99,14 @@ export const getParentKey = (key: any, tree: any): any => {
   }
   return parentKey;
 };
+
+
+export const sortNodesAndChildren = (nodes: any[]) => {
+  sortBy(nodes, ['title'])
+  nodes.forEach((node: any) => {
+    if (node.children && node.children.length > 0) {
+      console.log('Are we here')
+      sortNodesAndChildren(node.children);
+    }
+  });
+}

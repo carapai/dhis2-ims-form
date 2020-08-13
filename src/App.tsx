@@ -1,5 +1,4 @@
 import { useDataEngine } from "@dhis2/app-runtime";
-// import { AppStyles } from "./AppStyles.styles.tw";
 import { HeaderBar } from '@dhis2/ui-widgets';
 import { observer } from "mobx-react";
 import React from "react";

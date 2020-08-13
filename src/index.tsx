@@ -10,6 +10,7 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import "mobx-react-lite/batchingForReactDom";
 import Loading from './components/Loading';
+import { sortNodesAndChildren } from './utils';
 
 const baseUrl = process.env.REACT_APP_DHIS2_BASE_URL || 'http://localhost:8080/';
 
@@ -18,12 +19,17 @@ const config = {
   headers: process.env.NODE_ENV === 'development' ? { Authorization: process.env.REACT_APP_DHIS2_AUTHORIZATION } : null
 };
 
-ReactDOM.render(<Loading className="full-height"/>, document.getElementById('root'));
+// const sortTree = (data: any) => {
+//   return data.map((p: any) => {
+//     if
+//   })
+// }
+
+ReactDOM.render(<Loading className="full-height" />, document.getElementById('root'));
 
 const initialize = async () => {
   try {
     const d2 = await init(config);
-
     const api = d2.Api.getApi();
 
     const meRequest: Promise<any> = api.get("me.json", {
@@ -44,9 +50,12 @@ const initialize = async () => {
     });
 
     const allData = await Promise.all([meRequest, programsRequest, countriesRequest]);
-    store.setUserOrgUnits(allData[0].organisationUnits);
+    const units = allData[0].organisationUnits;
+    sortNodesAndChildren(units);
+    store.setUserOrgUnits(units);
     store.setPrograms(allData[1].programs);
-    store.setCounties(allData[2].organisationUnits)
+    store.setCounties(allData[2].organisationUnits);
+    store.setD2(d2);
 
     const appConfig: Config = {
       baseUrl,

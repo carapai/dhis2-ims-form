@@ -53,7 +53,6 @@ export const TrackedEntityInstances = observer(() => {
   return (
     <div className="instances">
       <div className="bg-gray-100 p-2">
-        {/* <Search size="large" style={{ marginBottom: 8 }} placeholder="Search" onChange={store.onChange} /> */}
         <Select
           size="large"
           showSearch

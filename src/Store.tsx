@@ -25,6 +25,8 @@ class Store {
   @observable autoExpandParent: boolean = true;
   @observable form: any;
   @observable expandedRows: string[] = []
+  @observable error: any = null;
+  @observable d2: any;
 
   @observable disabledElements = [
     "WyNHgVjv97i",
@@ -55,15 +57,16 @@ class Store {
     "gY8m7JwBy9p",
     "eiHYxW2Ybjv",
     "CiOsAwrfUaP",
-    "pin6sarb8cc"
+    "pin6sarb8cc",
+    "PGoc4AXIskG"
   ]
 
   @observable inheritable = {
     gsPwEWxXI6e: 'T8LURcyruHH',
-    W83hRUEbXjo: 'gY8m7JwBy9p',
+    // W83hRUEbXjo: 'gY8m7JwBy9p',
     XIqu530X3BA: 'Pn0OtdJRu86',
     uvWrgEqv06F: 'FElEeHFA2h5',
-    WEV1hAZk1zl: 'RU20DkMfdnO',
+    // WEV1hAZk1zl: 'RU20DkMfdnO',
     oMZGOrVDzlQ: 'JbAG8Lkkd7i',
     Jhix7kMMW5f: 'uGhQNyatC3M',
     // pin6sarb8cc: 'PGCvDSP3Y9S',
@@ -84,10 +87,10 @@ class Store {
     PNleJ4ejsuW: 'EylCEWx1bYJ',
     rE38dvsAtEw: 'NlKNTt8lRtc',
 
-    PGoc4AXIskG: 'sFBv4FIYydi',
-    zCSkGEoyFkV: 'GeiyLk2U1qI',
-    fLD4wuUVi1i: 'TX3vq0b6f8R',
-    cEQikKW778D: 'H6lgwocDrTy',
+    // PGoc4AXIskG: 'sFBv4FIYydi',
+    // zCSkGEoyFkV: 'GeiyLk2U1qI',
+    // fLD4wuUVi1i: 'TX3vq0b6f8R',
+    // cEQikKW778D: 'H6lgwocDrTy',
     // tyCCqrl6t1v: 'aRfwyyBIHjp',
     // Z9LUqA3qR3i: 'hJDbRV78VWp'
   }
@@ -112,6 +115,7 @@ class Store {
 
   @action setTeamType = (val: any) => this.teamType = val;
   @action setDescendants = (val: any) => this.descendants = val;
+  @action setD2 = (val: any) => this.d2 = val;
 
   @action setExpandedRows = (events: string[]) => this.expandedRows = events
   @action setForm = (val: any) => this.form = val;
@@ -229,64 +233,87 @@ class Store {
   }
 
   @action queryTrackedEntityInstance = async (instance: string, refresh: boolean = true) => {
+    this.error = null;
     this.loading = refresh;
-    const query = {
-      instance: {
-        resource: `trackedEntityInstances/${instance}.json`,
-        params: {
-          fields: '*'
-        }
-      }
-    }
+    // const query = {
+    //   instance: {
+    //     resource: `trackedEntityInstances/${instance}.json`,
+    //     params: {
+    //       fields: '*'
+    //     }
+    //   }
+    // }
+
+    const api = this.d2.Api.getApi();
 
     try {
-      const data = await this.engine.query(query);
-      this.instance = data.instance;
+      const trackedEntityInstance = await api.get(`trackedEntityInstances/${instance}.json`, {
+        fields: '*'
+      });
+      this.instance = trackedEntityInstance;
       this.selectedOrgUnit = this.instance.orgUnit;
       if (this.currentProgramStage === 'nNMTjdvTh7r' && !isEmpty(this.getTemplateData)) {
         this.currentEvent = this.getTemplateData.event;
         this.disableFields(['gY8m7JwBy9p', 'sFBv4FIYydi', 'RU20DkMfdnO', 'GeiyLk2U1qI', 'H6lgwocDrTy', 'TX3vq0b6f8R'], true);
       }
     } catch (e) {
-      console.log(e);
+      this.error = e;
     }
     this.loading = false;
   }
 
   @action loadOrganisationUnitDescendants = async () => {
-    const query = {
-      units: {
-        resource: `organisationUnits/${this.selectedOrgUnit}.json`,
-        params: {
-          includeDescendants: 'true',
-          fields: 'id,name,description'
-        }
-      }
-    }
-    const { units: { organisationUnits } } = await this.engine.query(query);
+    // const query = {
+    //   units: {
+    //     resource: `organisationUnits/${this.selectedOrgUnit}.json`,
+    //     params: {
+    //       includeDescendants: 'true',
+    //       fields: 'id,name,description'
+    //     }
+    //   }
+    // }
+    const api = this.d2.Api.getApi();
+    // const { units: { organisationUnits } } = await this.engine.query(query);
+    const { organisationUnits } = await api.get(`organisationUnits/${this.selectedOrgUnit}.json`, {
+      includeDescendants: 'true',
+      fields: 'id,name,description'
+    });
     this.setDescendants(organisationUnits.filter((ou: any) => ou.id !== this.selectedOrgUnit))
   }
 
   @action loadCurrentInstance = async (program: any, instance: any) => {
+    this.error = null;
     store.setCurrentProgramId(program);
-    await store.queryTrackedEntityInstance(instance);
-    await store.loadOrganisationUnitDescendants();
+    try {
+      await store.queryTrackedEntityInstance(instance);
+      await store.loadOrganisationUnitDescendants();
+    } catch (error) {
+      this.error = error;
+    }
   }
 
   @action loadOrganisationUnitsChildren = async (parent: string) => {
-    const query = {
-      organisations: {
-        resource: `organisationUnits.json`,
-        params: {
-          filter: `id:in:[${parent}]`,
-          paging: 'false',
-          fields: 'id,level,children[id,name,level,path,leaf]'
-        }
-      },
-    }
+    this.error = null;
+    // const query = {
+    //   organisations: {
+    //     resource: `organisationUnits.json`,
+    //     params: {
+    //       filter: `id:in:[${parent}]`,
+    //       paging: 'false',
+    //       fields: 'id,level,children[id,name,level,path,leaf]'
+    //     }
+    //   },
+    // }
+    const api = this.d2.Api.getApi();
+
     try {
-      const data = await this.engine.query(query);
-      const found = data.organisations.organisationUnits.map((unit: any) => {
+      // const data = await this.engine.query(query);
+      const { organisationUnits } = await api.get(`organisationUnits.json`, {
+        filter: `id:in:[${parent}]`,
+        paging: 'false',
+        fields: 'id,level,children[id,name,level,path,leaf]'
+      })
+      const found = organisationUnits.map((unit: any) => {
         return unit.children.map((child: any) => {
           return { ...child, pId: parent }
         })
@@ -294,7 +321,7 @@ class Store {
       const all = flatten(found);
       this.userOrgUnits = [...this.userOrgUnits, ...all];
     } catch (e) {
-      console.log(e);
+      this.error = e;
     }
   }
 
@@ -324,6 +351,7 @@ class Store {
   }
 
   @action setSelectedProgram = async (program: any) => {
+    this.error = null;
     this.setCurrentProgramId(program);
     try {
       await this.queryTrackedEntityInstances();
@@ -332,29 +360,35 @@ class Store {
         return { ...trackedEntityAttribute, selected };
       });
     } catch (e) {
-      console.log(e);
+      this.error = e;
     }
   };
 
   @action queryTrackedEntityInstances = async (loading: boolean = true) => {
+    this.error = null;
     if (this.selectedOrgUnit && this.selectedProgram) {
       this.loading = loading;
-      const query1 = {
-        trackedEntityInstances: {
-          resource: 'trackedEntityInstances/query.json',
-          params: {
-            program: this.currentProgram,
-            ou: this.selectedOrgUnit
-          }
-        }
-      }
+      const api = this.d2.Api.getApi();
+      // const query1 = {
+      //   trackedEntityInstances: {
+      //     resource: 'trackedEntityInstances/query.json',
+      //     params: {
+      //       program: this.currentProgram,
+      //       ou: this.selectedOrgUnit
+      //     }
+      //   }
+      // }
       try {
-        const data = await this.engine.query(query1);
-        const headers = data.trackedEntityInstances.headers.map((h: any) => h["name"]);
-        this.data = data.trackedEntityInstances.rows.map((r: any) => {
+        // const data = await this.engine.query(query1);
+        const { headers, rows } = await api.get(`trackedEntityInstances/query.json`, {
+          program: this.currentProgram,
+          ou: this.selectedOrgUnit
+        })
+        const foundHeaders = headers.map((h: any) => h["name"]);
+        this.data = rows.map((r: any) => {
           return Object.assign.apply(
             {},
-            headers.map((v: any, i: number) => ({
+            foundHeaders.map((v: any, i: number) => ({
               [v]: r[i],
             }))
           );
@@ -362,12 +396,14 @@ class Store {
         this.loading = false;
       } catch (e) {
         this.loading = false
-        console.log(e);
+        this.error = e;
+
       }
     }
   }
 
   @action addTrackedEntityInstance = async (trackedEntityInstances: any, loading = true) => {
+    this.error = null;
     let createMutation: any = {
       type: 'create',
       resource: 'trackedEntityInstances',
@@ -377,36 +413,42 @@ class Store {
       await this.engine.mutate(createMutation);
       await this.queryTrackedEntityInstances(loading);
     } catch (error) {
-      console.error("Failed to fetch projects", error);
+      this.error = error;
     }
     this.setCurrentPage('list');
   }
 
   @action addTrackedEntityInstance2 = async (trackedEntityInstances: any) => {
-    let createMutation: any = {
-      type: 'create',
-      resource: 'trackedEntityInstances',
-      data: { trackedEntityInstances }
-    }
+    this.error = null;
+    const api = this.d2.Api.getApi();
+    // let createMutation: any = {
+    //   type: 'create',
+    //   resource: 'trackedEntityInstances',
+    //   data: { trackedEntityInstances }
+    // }
     try {
-      await this.engine.mutate(createMutation);
+      // await this.engine.mutate(createMutation);
+      await api.post('trackedEntityInstances', { trackedEntityInstances });
     } catch (error) {
-      console.error("Failed to fetch projects", error);
+      this.error = error;
     }
     this.setCurrentPage('list');
   }
 
   @action addEvent = async (events: any, refresh: boolean = true) => {
-    let createMutation: any = {
-      type: 'create',
-      resource: 'events.json',
-      data: { events }
-    }
+    this.error = null;
+    const api = this.d2.Api.getApi();
+    // let createMutation: any = {
+    //   type: 'create',
+    //   resource: 'events.json',
+    //   data: { events }
+    // }
     try {
-      await this.engine.mutate(createMutation);
+      // await this.engine.mutate(createMutation);
+      await api.post('events', { events });
       await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance, refresh);
     } catch (error) {
-      console.error("Failed to fetch projects", error);
+      this.error = error;
     }
     this.setCurrentPage('list');
   }
@@ -435,6 +477,7 @@ class Store {
   }
 
   @action deleteEvent = async () => {
+    this.error = null;
     const deleteMutation = {
       type: 'delete',
       resource: 'events',
@@ -444,11 +487,12 @@ class Store {
       await this.engine.mutate(deleteMutation);
       await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance);
     } catch (error) {
-      console.error("Failed to fetch projects", error);
+      this.error = error;
     }
   }
 
   @action deleteTrackedEntityInstance = async () => {
+    this.error = null;
     const deleteMutation = {
       type: 'delete',
       resource: 'trackedEntityInstances',
@@ -458,7 +502,7 @@ class Store {
       await this.engine.mutate(deleteMutation);
       await this.queryTrackedEntityInstances();
     } catch (error) {
-      console.error("Failed to fetch projects", error);
+      this.error = error;
     }
   }
 
@@ -581,7 +625,15 @@ class Store {
 
   @computed get programStageColumns() {
     if (this.isRepeatable) {
-      return this.currentProgramStageDetails.programStageDataElements.filter((psde: any) => psde.displayInReports).map((a: any) => {
+
+      const options = [{
+        displayInReports: true,
+        dataElement: { id: 'wlEpNQNoR9F', displayFormName: 'Team Type', valueType: 'Text' }
+      }, {
+        displayInReports: true,
+        dataElement: { id: 'K1YcxEoSq1B', displayFormName: 'Team Name', valueType: 'Text' }
+      }]
+      return [...options, ...this.currentProgramStageDetails.programStageDataElements].filter((psde: any) => psde.displayInReports).map((a: any) => {
         const clss = String(a.dataElement.valueType).indexOf('INTEGER') !== -1 ? 'text-right' : 'text-left'
         return {
           key: a.dataElement.id,
@@ -595,6 +647,10 @@ class Store {
               if (option) {
                 return option.name
               }
+            } else if (a.dataElement.id === 'wlEpNQNoR9F') {
+              return this.teamTypes[result]
+            } else if (a.dataElement.id === 'K1YcxEoSq1B') {
+              return this.teamNames[result]
             }
             return <div className={clss}>{result}</div>;
           },
@@ -620,9 +676,9 @@ class Store {
 
   @computed get currentProcessedData() {
     return this.currentData.map((e: any) => {
-      const { eventDate, dataValues, event, status } = e;
-      // const { eventDate, dataValues, event, attributeCategoryOptions, status } = e;
-      // const aco = String(attributeCategoryOptions).split(';');
+      // const { eventDate, dataValues, event, status } = e;
+      const { eventDate, dataValues, event, attributeCategoryOptions, status } = e;
+      const aco = String(attributeCategoryOptions).split(';');
       const realValues = fromPairs(dataValues.map((dv: any) => {
         let value = dv.value;
         if (this.dateFields.indexOf(dv.dataElement) !== -1) {
@@ -630,10 +686,10 @@ class Store {
         }
         return [`${event}-${dv.dataElement}`, value]
       }));
-      // const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
-      // const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
-      // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, [`${event}-status`]: status }
-      return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-status`]: status }
+      const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+      const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+      return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, [`${event}-status`]: status }
+      // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-status`]: status }
     });
   }
 
@@ -661,9 +717,6 @@ class Store {
             realValues = { ...realValues, [de]: val }
           }
         });
-
-
-
         realValues = performOperation(realValues, 'tyCCqrl6t1v', 'gsPwEWxXI6e', 'W83hRUEbXjo', '/');
         realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
         realValues = performOperation(realValues, 'PGoc4AXIskG', 'uvWrgEqv06F', 'WEV1hAZk1zl', '/');
@@ -710,20 +763,27 @@ class Store {
         const aa = Number(realValues['rE38dvsAtEw']) || 0;
         const ac = Number(realValues['CiOsAwrfUaP']) || 0;
 
-        const transportGrant = (i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u);
-        const mpEventSnaks = e * l;
-        const tgjEventMeals = r * w;
-        const admin = m * c;
+        let transportGrant = ((i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u)) / rate;
+        let mpEventSnaks = (e * l) / rate;
+        let tgjEventMeals = (r * w) / rate;
+        let admin = (m * c) / rate;
+
+        if (Number(realValues['tyCCqrl6t1v']) === 0) {
+          transportGrant = (j * 3 * 4) / rate;
+          mpEventSnaks = 0;
+          tgjEventMeals = 0;
+          admin = 0;
+        }
 
         realValues = { ...realValues, WyNHgVjv97i: Math.ceil(transportGrant) };
         realValues = { ...realValues, PTeqHUCZVFd: Math.ceil(mpEventSnaks) };
         realValues = { ...realValues, qP3onIBOoJa: Math.ceil(tgjEventMeals) };
         realValues = { ...realValues, fFe4xMmrPZZ: Math.ceil(admin) };
 
-        realValues = { ...realValues, KLzfFndIPqo: x * ab * 2 };
-        realValues = { ...realValues, lOzK4T2eTga: y * ab * 2 };
-        realValues = { ...realValues, M9pi5hjxhWr: z * ab * 2 };
-        realValues = { ...realValues, awxAGJwj83W: aa * ac };
+        realValues = { ...realValues, KLzfFndIPqo: Math.ceil((x * ab * 2) / rate) };
+        realValues = { ...realValues, lOzK4T2eTga: Math.ceil((y * ab * 2) / rate) };
+        realValues = { ...realValues, M9pi5hjxhWr: Math.ceil((z * ab * 2) / rate) };
+        realValues = { ...realValues, awxAGJwj83W: Math.ceil((aa * ac) / rate) };
 
         realValues = addValues(['WyNHgVjv97i', 'PTeqHUCZVFd', 'qP3onIBOoJa', 'fFe4xMmrPZZ'], realValues, 'JZo5Iw4geHp')
         realValues = addValues(['KLzfFndIPqo', 'lOzK4T2eTga', 'M9pi5hjxhWr', 'awxAGJwj83W'], realValues, 'iSDnwU0GRAL')
@@ -737,8 +797,6 @@ class Store {
         const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
 
         realValues = { ...realValues, pin6sarb8cc: occContacts }
-
-
       }
       return { ...realValues, eventDate: moment(eventDate), event, status }
     });
@@ -825,23 +883,29 @@ class Store {
     return []
   }
 
+  @computed get teamNames() {
+    return fromPairs(this.currentTeamName.map((t: any) => [t.code, t.name]))
+  }
+  @computed get teamTypes() {
+    return fromPairs(this.currentTeamType.map((t: any) => [t.code, t.name]))
+  }
+
   @computed get eventModalForm() {
     return [{
       displayFormName: 'Date',
       valueType: 'DATE',
       id: 'eventDate'
+    }, {
+      displayFormName: 'Team Type',
+      valueType: 'TEXT',
+      id: 'wlEpNQNoR9F',
+      optionSet: { options: this.currentTeamType }
+    }, {
+      displayFormName: 'Team Name',
+      valueType: 'TEXT',
+      id: 'K1YcxEoSq1B',
+      optionSet: { options: this.currentTeamName }
     }]
-    // , {
-    //   displayFormName: 'Team Type',
-    //   valueType: 'TEXT',
-    //   id: 'wlEpNQNoR9F',
-    //   optionSet: { options: this.currentTeamType }
-    // }, {
-    //   displayFormName: 'Team Name',
-    //   valueType: 'TEXT',
-    //   id: 'K1YcxEoSq1B',
-    //   optionSet: { options: this.currentTeamName }
-    // }
   }
 
   @computed get getTemplateData(): any {
@@ -852,8 +916,8 @@ class Store {
         return event.programStage === 'nNMTjdvTh7r'
       });
       if (e) {
-        const { eventDate, dataValues, status, event } = e;
-        // const aco = String(attributeCategoryOptions).split(';');
+        const { eventDate, dataValues, status, event, attributeCategoryOptions } = e;
+        const aco = String(attributeCategoryOptions).split(';');
         const realValues = fromPairs(dataValues.map((dv: any) => {
           let value = dv.value;
           if (this.dateFields.indexOf(dv.dataElement) !== -1) {
@@ -861,10 +925,10 @@ class Store {
           }
           return [`${event}-${dv.dataElement}`, value]
         }));
-        // const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
-        // const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
-        // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, [`${event}-status`]: status }
-        return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-status`]: status }
+        const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+        const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
+        return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, [`${event}-status`]: status }
+        // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-status`]: status }
       }
       return {}
     }

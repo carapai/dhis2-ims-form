@@ -1,6 +1,6 @@
 import { Button, Card, Input, Menu, Popconfirm, Select, Table, Tooltip } from "antd";
 import { FormInstance } from "antd/lib/form";
-import { fromPairs, invert, keys } from "lodash";
+import { fromPairs, invert, keys, isNil } from "lodash";
 import { observer } from "mobx-react";
 import React, { FC, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import { EventForm } from "./EventForm";
 import { EventModalForm } from "./EventModalForm";
 import Loading from "./Loading";
 import { TrackedEntityInstanceForm } from "./TrackedEntityInstanceForm";
+import { ErrorMessage } from "./Error";
 
 const { Option } = Select
 
@@ -47,9 +48,11 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
   };
 
   const addModalForm = async (val: any) => {
-    const { eventDate } = val;
+    const { eventDate, ...others } = val;
+    const attributeCategoryOptions = Object.values(others).join(';');
     const event = generateUid();
     const events = [{
+      attributeCategoryOptions,
       event,
       eventDate,
       dataValues: [],
@@ -125,28 +128,35 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         }
       }
       if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) === 'true') {
-        const invertedChecked = invert(store.affected);
+        // const invertedChecked = invert(store.affected);
         Object.entries(store.inheritable).forEach(([de, value]) => {
-          const original = record[`${store.currentEvent}-${de}`]
-          const hasChecked = invertedChecked[de];
+          // const original = record[`${store.currentEvent}-${de}`]
+          // const hasChecked = invertedChecked[de];
           let val = store.getTemplateData[`${templateEvent}-${value}`];
-          if (hasChecked !== undefined && String(record[`${store.currentEvent}-${hasChecked}`]) === 'true') {
-            store.disableFields([de], false);
-            store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: original });
-          } else {
-            store.disableFields([de], true);
+
+          store.disableFields([de], true);
             if (val) {
               store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
             }
-          }
+          // if (hasChecked !== undefined && String(record[`${store.currentEvent}-${hasChecked}`]) === 'true') {
+          //   store.disableFields([de], false);
+          //   store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: original });
+          // } else {
+
+          // }
         });
+
+        Object.entries(store.affected).forEach(([checkbox, de]) => {
+          const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
+          const disable = String(checkboxValue) !== 'true'
+          store.disableFields([String(de)], disable);
+        })
 
         const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
         const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
         const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
         const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
         store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
-        console.log(templateContacts, templateMPS, teamGrantMPS);
       } else {
         store.disableFields([], false, true);
       }
@@ -162,7 +172,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
         return [String(key).split('-')[1], value]
       }));
-      const { eventDate, status, ...others }: any = realValues;
+      const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, status, ...others }: any = realValues;
       const dataValues = Object.entries(others).map(([dataElement, value]) => {
         let currentValue: any = value;
         if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -174,6 +184,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       let ev: any = {
         dataValues,
         eventDate: eventDate.format('YYYY-MM-DD'),
+        attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
         event,
         ...store.enrollment
       }
@@ -190,7 +201,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       const realValues = fromPairs(Object.entries(rest).map(([key, value]) => {
         return [String(key).split('-')[1], value]
       }));
-      const { eventDate, status, ...others }: any = realValues;
+      const { eventDate, wlEpNQNoR9F, K1YcxEoSq1B, status, ...others }: any = realValues;
       const dataValues = Object.entries(others).map(([dataElement, value]) => {
         let currentValue: any = value;
         if (store.dateFields.indexOf(dataElement) !== -1) {
@@ -201,6 +212,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       let ev: any = {
         dataValues,
         eventDate: eventDate.format('YYYY-MM-DD'),
+        attributeCategoryOptions: `${wlEpNQNoR9F};${K1YcxEoSq1B}`,
         event,
         ...store.enrollment
       }
@@ -236,63 +248,63 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
   const onValuesChange = (form: FormInstance) => async (changedValues: any, allValues: any) => {
     const [key, value] = Object.entries(changedValues)[0];
     if (store.currentProgramStage === 'nNMTjdvTh7r') {
-
-      if ((key === `${store.currentEvent}-aRfwyyBIHjp` || form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`)) && form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`)) {
+      if ((key === `${store.currentEvent}-aRfwyyBIHjp` || !isNil(form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`))) && !isNil(form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`))) {
         const newValue = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`)) / form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`))
         form.setFieldsValue({ [`${store.currentEvent}-gY8m7JwBy9p`]: newValue })
       }
 
-      if ((key === `${store.currentEvent}-T8LURcyruHH` || form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`)) && form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`)) {
+      if ((key === `${store.currentEvent}-T8LURcyruHH` || !isNil(form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`))) && !isNil(form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`))) {
         const newValue = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-aRfwyyBIHjp`)) / Number(form.getFieldValue(`${store.currentEvent}-T8LURcyruHH`)));
         form.setFieldsValue({ [`${store.currentEvent}-gY8m7JwBy9p`]: newValue });
       }
 
-      if ((key === `${store.currentEvent}-Pn0OtdJRu86` || form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`)) && form.getFieldValue(`${store.currentEvent}-gY8m7JwBy9p`)) {
+      if ((key === `${store.currentEvent}-Pn0OtdJRu86` || !isNil(form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`))) && !isNil(form.getFieldValue(`${store.currentEvent}-gY8m7JwBy9p`))) {
         const val = Number(form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`)) * Number(form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`))
         form.setFieldsValue({ [`${store.currentEvent}-sFBv4FIYydi`]: val });
       }
 
-      if ((key === `${store.currentEvent}-gY8m7JwBy9p` || form.getFieldValue(`${store.currentEvent}-gY8m7JwBy9p`)) && form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`)) {
+      if ((key === `${store.currentEvent}-gY8m7JwBy9p` || !isNil(form.getFieldValue(`${store.currentEvent}-gY8m7JwBy9p`))) && !isNil(form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`))) {
         const val = Number(form.getFieldValue(`${store.currentEvent}-gY8m7JwBy9p`)) * Number(form.getFieldValue(`${store.currentEvent}-Pn0OtdJRu86`))
         form.setFieldsValue({ [`${store.currentEvent}-sFBv4FIYydi`]: val })
       }
 
-      if ((key === `${store.currentEvent}-FElEeHFA2h5` || form.getFieldValue(`${store.currentEvent}-FElEeHFA2h5`)) && form.getFieldValue(`${store.currentEvent}-sFBv4FIYydi`)) {
+      if ((key === `${store.currentEvent}-FElEeHFA2h5` || !isNil(form.getFieldValue(`${store.currentEvent}-FElEeHFA2h5`))) && !isNil(form.getFieldValue(`${store.currentEvent}-sFBv4FIYydi`))) {
         form.setFieldsValue({ [`${store.currentEvent}-RU20DkMfdnO`]: Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-sFBv4FIYydi`) / Number(form.getFieldValue(`${store.currentEvent}-FElEeHFA2h5`)))) })
       }
 
-      if ((key === `${store.currentEvent}-hJDbRV78VWp` || form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`)) && form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`)) {
+      if ((key === `${store.currentEvent}-hJDbRV78VWp` || !isNil(form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`))) && !isNil(form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`))) {
         const newValue = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`)) / form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`)).toFixed(0)
         form.setFieldsValue({ [`${store.currentEvent}-GeiyLk2U1qI`]: newValue })
       }
 
-      if ((key === `${store.currentEvent}-uGhQNyatC3M` || form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`)) && form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`)) {
+      if ((key === `${store.currentEvent}-uGhQNyatC3M` || !isNil(form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`))) && !isNil(form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`))) {
         const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-hJDbRV78VWp`) / form.getFieldValue(`${store.currentEvent}-uGhQNyatC3M`)).toFixed(0)
         form.setFieldsValue({ [`${store.currentEvent}-GeiyLk2U1qI`]: newValue })
       }
 
-      if ((key === `${store.currentEvent}-PGCvDSP3Y9S` || form.getFieldValue(`${store.currentEvent}-PGCvDSP3Y9S`)) && form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`)) {
+      if ((key === `${store.currentEvent}-PGCvDSP3Y9S` || !isNil(form.getFieldValue(`${store.currentEvent}-PGCvDSP3Y9S`))) && !isNil(form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`))) {
         const newValue = Number(form.getFieldValue(`${store.currentEvent}-PGCvDSP3Y9S`)) + Number(form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`))
         form.setFieldsValue({ [`${store.currentEvent}-H6lgwocDrTy`]: newValue })
       }
 
-      if ((key === `${store.currentEvent}-lum3A7SVxKV` || form.getFieldValue(`${store.currentEvent}-lum3A7SVxKV`)) && form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`)) {
+      if ((key === `${store.currentEvent}-lum3A7SVxKV` || !isNil(form.getFieldValue(`${store.currentEvent}-lum3A7SVxKV`))) && !isNil(form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`))) {
         const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-GeiyLk2U1qI`) / form.getFieldValue(`${store.currentEvent}-lum3A7SVxKV`))
         form.setFieldsValue({ [`${store.currentEvent}-TX3vq0b6f8R`]: newValue })
       }
     } else {
       const { event: templateEvent } = store.getTemplateData;
+      const rate = Number(store.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1);
       if ((key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) === 'true')) {
-        const invertedChecked = invert(store.affected);
+        // const invertedChecked = invert(store.affected);
         Object.entries(store.inheritable).forEach(([de, value]) => {
-          const hasChecked = invertedChecked[de];
+          // const hasChecked = invertedChecked[de];
           let val = store.getTemplateData[`${templateEvent}-${value}`];
-          if (val && ((hasChecked !== undefined && String(form.getFieldValue(`${store.currentEvent}-${hasChecked}`)) !== 'true') || hasChecked === undefined)) {
+          // if (val && ((hasChecked !== undefined && String(form.getFieldValue(`${store.currentEvent}-${hasChecked}`)) !== 'true') || hasChecked === undefined)) {
             form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-          }
+          // }
         });
 
-        store.disableFields(Object.keys(store.affected), false);
+        // store.disableFields(Object.keys(store.affected), false);
         store.disableFields(Object.keys(store.inheritable), true);
 
         Object.entries(store.affected).forEach(([k, v]) => {
@@ -304,23 +316,13 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.disableFields(Object.keys(store.affected), true);
         store.disableFields(Object.keys(store.inheritable), false);
       }
-      const rate = Number(store.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1);
-      if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && (key === `${store.currentEvent}-tyCCqrl6t1v`) && form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`)) {
+
+      if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) && !isNil(form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`))) {
         const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`) / form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`));
         form.setFieldsValue({ [`${store.currentEvent}-W83hRUEbXjo`]: newValue });
       }
 
-      if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && (key === `${store.currentEvent}-gsPwEWxXI6e` || form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`)) && form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) {
-        const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`) / form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`));
-        form.setFieldsValue({ [`${store.currentEvent}-W83hRUEbXjo`]: newValue });
-      }
-
-      if ((key === `${store.currentEvent}-XIqu530X3BA` || form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`)) && form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) {
-        const val = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) * Number(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))
-        form.setFieldsValue({ [`${store.currentEvent}-PGoc4AXIskG`]: val });
-      }
-
-      if ((key === `${store.currentEvent}-W83hRUEbXjo` || form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) && form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`)) {
+      if (!isNil(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) && !isNil(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))) {
         const val = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) * Number(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))
         form.setFieldsValue({ [`${store.currentEvent}-PGoc4AXIskG`]: val });
         const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
@@ -330,37 +332,22 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
       }
 
-      if (String(form.getFieldValue(`${store.currentEvent}-zrVBd7rIed2`)) !== 'true' && (key === `${store.currentEvent}-uvWrgEqv06F` || form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)) && form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`)) {
+      if (String(form.getFieldValue(`${store.currentEvent}-zrVBd7rIed2`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)) && !isNil(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`))) {
         const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`)) / Number(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)));
         form.setFieldsValue({ [`${store.currentEvent}-WEV1hAZk1zl`]: val });
       }
 
-      if (String(form.getFieldValue(`${store.currentEvent}-zrVBd7rIed2`)) !== 'true' && (key === `${store.currentEvent}-PGoc4AXIskG` || form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`)) && form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`)) / Number(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)));
-        form.setFieldsValue({ [`${store.currentEvent}-WEV1hAZk1zl`]: val });
+      if (String(form.getFieldValue(`${store.currentEvent}-RGc7vhjB0Mt`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) && !isNil(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`))) {
+        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) / Number(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)));
+        form.setFieldsValue({ [`${store.currentEvent}-zCSkGEoyFkV`]: val });
       }
 
-      if (String(form.getFieldValue(`${store.currentEvent}-RGc7vhjB0Mt`)) !== 'true' && (key === `${store.currentEvent}-Z9LUqA3qR3i` || form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) && form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) / Number(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)));
-        form.setFieldsValue({ [`${store.currentEvent}-zCSkGEoyFkV`]: val });
-      }
-      if (String(form.getFieldValue(`${store.currentEvent}-RGc7vhjB0Mt`)) !== 'true' && (key === `${store.currentEvent}-Jhix7kMMW5f` || form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)) && form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) / Number(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)));
-        form.setFieldsValue({ [`${store.currentEvent}-zCSkGEoyFkV`]: val });
-      }
-      if ((key === `${store.currentEvent}-pin6sarb8cc` || form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`)) && form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) {
+      if (!isNil(form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`)) && !isNil(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`))) {
         const val = Number(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) + Number(form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`));
         form.setFieldsValue({ [`${store.currentEvent}-cEQikKW778D`]: val });
       }
-      if ((key === `${store.currentEvent}-zCSkGEoyFkV` || form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) && form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`)) {
-        const val = Number(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) + Number(form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`));
-        form.setFieldsValue({ [`${store.currentEvent}-cEQikKW778D`]: val });
-      }
-      if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'true' && (key === `${store.currentEvent}-sqckP81B8Go` || form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)) && form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
-        form.setFieldsValue({ [`${store.currentEvent}-fLD4wuUVi1i`]: val });
-      }
-      if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'true' && (key === `${store.currentEvent}-cEQikKW778D` || form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) && form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)) {
+
+      if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) && !isNil(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`))) {
         const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
         form.setFieldsValue({ [`${store.currentEvent}-fLD4wuUVi1i`]: val });
       }
@@ -423,21 +410,27 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       const aa = Number(form.getFieldValue(`${store.currentEvent}-rE38dvsAtEw`)) || 0;
       const ac = Number(form.getFieldValue(`${store.currentEvent}-CiOsAwrfUaP`)) || 0;
 
-      const transportGrant = (i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u);
-      // console.log(`i:${i}, c:${c}, j:${j}, g:${g}, h:${h}, k:${k}, v:${v}, t:${t}, u:${u}`)
-      const mpEventSnacks = e * l;
-      const tgjEventMeals = r * w;
-      const admin = m * c;
+      let transportGrant = ((i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u)) / rate;
+      let mpEventSnacks = (e * l) / rate;
+      let tgjEventMeals = (r * w) / rate;
+      let admin = (m * c) / rate;
+
+      if (Number(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) === 0) {
+        transportGrant = (j * 3 * 4) / rate;
+        mpEventSnacks = 0;
+        tgjEventMeals = 0;
+        admin = 0;
+      }
 
       form.setFieldsValue({ [`${store.currentEvent}-WyNHgVjv97i`]: Math.ceil(transportGrant) })
       form.setFieldsValue({ [`${store.currentEvent}-PTeqHUCZVFd`]: Math.ceil(mpEventSnacks) })
       form.setFieldsValue({ [`${store.currentEvent}-qP3onIBOoJa`]: Math.ceil(tgjEventMeals) })
       form.setFieldsValue({ [`${store.currentEvent}-fFe4xMmrPZZ`]: Math.ceil(admin) })
 
-      form.setFieldsValue({ [`${store.currentEvent}-KLzfFndIPqo`]: x * ab * 2 })
-      form.setFieldsValue({ [`${store.currentEvent}-lOzK4T2eTga`]: y * ab * 2 })
-      form.setFieldsValue({ [`${store.currentEvent}-M9pi5hjxhWr`]: z * ab * 2 })
-      form.setFieldsValue({ [`${store.currentEvent}-awxAGJwj83W`]: aa * ac })
+      form.setFieldsValue({ [`${store.currentEvent}-KLzfFndIPqo`]: Math.ceil((x * ab * 2) / rate) })
+      form.setFieldsValue({ [`${store.currentEvent}-lOzK4T2eTga`]: Math.ceil((y * ab * 2) / rate) })
+      form.setFieldsValue({ [`${store.currentEvent}-M9pi5hjxhWr`]: Math.ceil((z * ab * 2) / rate) })
+      form.setFieldsValue({ [`${store.currentEvent}-awxAGJwj83W`]: Math.ceil((aa * ac) / rate) })
 
       addDataElements([`${store.currentEvent}-WyNHgVjv97i`, `${store.currentEvent}-PTeqHUCZVFd`, `${store.currentEvent}-qP3onIBOoJa`, `${store.currentEvent}-fFe4xMmrPZZ`], form, `${store.currentEvent}-JZo5Iw4geHp`)
       addDataElements([`${store.currentEvent}-KLzfFndIPqo`, `${store.currentEvent}-lOzK4T2eTga`, `${store.currentEvent}-M9pi5hjxhWr`, `${store.currentEvent}-awxAGJwj83W`], form, `${store.currentEvent}-iSDnwU0GRAL`)
@@ -503,9 +496,10 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       }
     }
 
-    if (keys(store.affected).map(k => `${store.currentEvent}-${k}`).indexOf(key) !== -1) {
+    if ([...keys(store.affected).map(k => `${store.currentEvent}-${k}`), `${store.currentEvent}-sBHTpu7aWMW`].indexOf(key) !== -1) {
       form.setFieldsValue({ [key]: String(value) === 'true' ? value : '' })
     }
+
 
     const data = Object.entries(allValues).map(([k, v]) => {
       if (form.getFieldValue(k) !== v && form.getFieldValue(k) !== undefined) {
@@ -519,7 +513,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     if (canInsert.indexOf(key) !== -1) {
       await insertRow(key, data)
     }
-
   }
 
   const onBlur = (id: string) => async (e: any) => {
@@ -547,6 +540,10 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     await store.deleteTrackedEntityInstance();
     history.push('/');
 
+  }
+
+  if (store.error !== null) {
+    return <ErrorMessage message={store.error?.message} />
   }
 
   if (!store.instance || store.loading) {
