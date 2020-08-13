@@ -102,11 +102,22 @@ export const getParentKey = (key: any, tree: any): any => {
 
 
 export const sortNodesAndChildren = (nodes: any[]) => {
-  sortBy(nodes, ['title'])
-  nodes.forEach((node: any) => {
-    if (node.children && node.children.length > 0) {
-      console.log('Are we here')
-      sortNodesAndChildren(node.children);
+  return sortBy(nodes, ['title']).map((node: any) => {
+    if (node.children) {
+      const children = sortBy(node.children, ['title']).map((child: any) => {
+        if (child.children) {
+          const childrenChildren = sortBy(child.children, ['title']).map((childChild) => {
+            if (childChild.children) {
+              childChild = { ...childChild, children: sortBy(childChild.children, ['title']) }
+            }
+            return childChild
+          })
+          child = { ...child, children: childrenChildren }
+        }
+        return child;
+      });
+      node = { ...node, children }
     }
+    return node;
   });
 }

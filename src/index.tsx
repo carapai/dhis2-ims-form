@@ -50,8 +50,8 @@ const initialize = async () => {
     });
 
     const allData = await Promise.all([meRequest, programsRequest, countriesRequest]);
-    const units = allData[0].organisationUnits;
-    sortNodesAndChildren(units);
+
+    const units = sortNodesAndChildren(allData[0].organisationUnits);
     store.setUserOrgUnits(units);
     store.setPrograms(allData[1].programs);
     store.setCounties(allData[2].organisationUnits);

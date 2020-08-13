@@ -1,16 +1,16 @@
 import { Button, Card, Input, Menu, Popconfirm, Select, Table, Tooltip } from "antd";
 import { FormInstance } from "antd/lib/form";
-import { fromPairs, invert, keys, isNil } from "lodash";
+import { fromPairs, isNil, keys } from "lodash";
 import { observer } from "mobx-react";
 import React, { FC, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useStore } from "../Context";
 import { generateUid } from "../utils";
+import { ErrorMessage } from "./Error";
 import { EventForm } from "./EventForm";
 import { EventModalForm } from "./EventModalForm";
 import Loading from "./Loading";
 import { TrackedEntityInstanceForm } from "./TrackedEntityInstanceForm";
-import { ErrorMessage } from "./Error";
 
 const { Option } = Select
 
