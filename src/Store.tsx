@@ -58,18 +58,16 @@ class Store {
     "eiHYxW2Ybjv",
     "CiOsAwrfUaP",
     "pin6sarb8cc",
-    "PGoc4AXIskG"
+    "PGoc4AXIskG",
+    "cEQikKW778D"
   ]
 
   @observable inheritable = {
     gsPwEWxXI6e: 'T8LURcyruHH',
-    // W83hRUEbXjo: 'gY8m7JwBy9p',
     XIqu530X3BA: 'Pn0OtdJRu86',
     uvWrgEqv06F: 'FElEeHFA2h5',
-    // WEV1hAZk1zl: 'RU20DkMfdnO',
     oMZGOrVDzlQ: 'JbAG8Lkkd7i',
     Jhix7kMMW5f: 'uGhQNyatC3M',
-    // pin6sarb8cc: 'PGCvDSP3Y9S',
     sqckP81B8Go: 'lum3A7SVxKV',
     YUH3uoLn1me: 'uV7btUiA1BV',
 
@@ -85,14 +83,7 @@ class Store {
     JbckYmJRNSl: 'ZmThLdyIMn0',
     F04W7zc8KgV: 'xCR6kMruEIb',
     PNleJ4ejsuW: 'EylCEWx1bYJ',
-    rE38dvsAtEw: 'NlKNTt8lRtc',
-
-    // PGoc4AXIskG: 'sFBv4FIYydi',
-    // zCSkGEoyFkV: 'GeiyLk2U1qI',
-    // fLD4wuUVi1i: 'TX3vq0b6f8R',
-    // cEQikKW778D: 'H6lgwocDrTy',
-    // tyCCqrl6t1v: 'aRfwyyBIHjp',
-    // Z9LUqA3qR3i: 'hJDbRV78VWp'
+    rE38dvsAtEw: 'NlKNTt8lRtc'
   }
 
   @observable hiddenSections: string[] = [];
@@ -171,7 +162,7 @@ class Store {
           if (remove) {
             return { ...de, disabled: false }
           }
-          if (ds.indexOf(de.id) !== -1 || this.disabledElements.indexOf(de.id) !== -1) {
+          if (ds.indexOf(de.id) !== -1) {
             return { ...de, disabled }
           }
           return de
@@ -263,17 +254,7 @@ class Store {
   }
 
   @action loadOrganisationUnitDescendants = async () => {
-    // const query = {
-    //   units: {
-    //     resource: `organisationUnits/${this.selectedOrgUnit}.json`,
-    //     params: {
-    //       includeDescendants: 'true',
-    //       fields: 'id,name,description'
-    //     }
-    //   }
-    // }
     const api = this.d2.Api.getApi();
-    // const { units: { organisationUnits } } = await this.engine.query(query);
     const { organisationUnits } = await api.get(`organisationUnits/${this.selectedOrgUnit}.json`, {
       includeDescendants: 'true',
       fields: 'id,name,description'
@@ -294,20 +275,9 @@ class Store {
 
   @action loadOrganisationUnitsChildren = async (parent: string) => {
     this.error = null;
-    // const query = {
-    //   organisations: {
-    //     resource: `organisationUnits.json`,
-    //     params: {
-    //       filter: `id:in:[${parent}]`,
-    //       paging: 'false',
-    //       fields: 'id,level,children[id,name,level,path,leaf]'
-    //     }
-    //   },
-    // }
     const api = this.d2.Api.getApi();
 
     try {
-      // const data = await this.engine.query(query);
       const { organisationUnits } = await api.get(`organisationUnits.json`, {
         filter: `id:in:[${parent}]`,
         paging: 'false',
@@ -369,17 +339,7 @@ class Store {
     if (this.selectedOrgUnit && this.selectedProgram) {
       this.loading = loading;
       const api = this.d2.Api.getApi();
-      // const query1 = {
-      //   trackedEntityInstances: {
-      //     resource: 'trackedEntityInstances/query.json',
-      //     params: {
-      //       program: this.currentProgram,
-      //       ou: this.selectedOrgUnit
-      //     }
-      //   }
-      // }
       try {
-        // const data = await this.engine.query(query1);
         const { headers, rows } = await api.get(`trackedEntityInstances/query.json`, {
           program: this.currentProgram,
           ou: this.selectedOrgUnit
@@ -421,13 +381,7 @@ class Store {
   @action addTrackedEntityInstance2 = async (trackedEntityInstances: any) => {
     this.error = null;
     const api = this.d2.Api.getApi();
-    // let createMutation: any = {
-    //   type: 'create',
-    //   resource: 'trackedEntityInstances',
-    //   data: { trackedEntityInstances }
-    // }
     try {
-      // await this.engine.mutate(createMutation);
       await api.post('trackedEntityInstances', { trackedEntityInstances });
     } catch (error) {
       this.error = error;
@@ -438,13 +392,7 @@ class Store {
   @action addEvent = async (events: any, refresh: boolean = true) => {
     this.error = null;
     const api = this.d2.Api.getApi();
-    // let createMutation: any = {
-    //   type: 'create',
-    //   resource: 'events.json',
-    //   data: { events }
-    // }
     try {
-      // await this.engine.mutate(createMutation);
       await api.post('events', { events });
       await this.queryTrackedEntityInstance(this.enrollment.trackedEntityInstance, refresh);
     } catch (error) {

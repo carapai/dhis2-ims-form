@@ -128,37 +128,26 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         }
       }
       if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) === 'true') {
-        // const invertedChecked = invert(store.affected);
         Object.entries(store.inheritable).forEach(([de, value]) => {
-          // const original = record[`${store.currentEvent}-${de}`]
-          // const hasChecked = invertedChecked[de];
           let val = store.getTemplateData[`${templateEvent}-${value}`];
 
           store.disableFields([de], true);
             if (val) {
               store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
             }
-          // if (hasChecked !== undefined && String(record[`${store.currentEvent}-${hasChecked}`]) === 'true') {
-          //   store.disableFields([de], false);
-          //   store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: original });
-          // } else {
-
-          // }
         });
 
         Object.entries(store.affected).forEach(([checkbox, de]) => {
           const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
           const disable = String(checkboxValue) !== 'true'
           store.disableFields([String(de)], disable);
-        })
+        });
 
         const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
         const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
         const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
         const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
         store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
-      } else {
-        store.disableFields([], false, true);
       }
     } else {
       store.setExpandedRows([]);
@@ -295,23 +284,19 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       const { event: templateEvent } = store.getTemplateData;
       const rate = Number(store.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1);
       if ((key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) === 'true')) {
-        // const invertedChecked = invert(store.affected);
         Object.entries(store.inheritable).forEach(([de, value]) => {
-          // const hasChecked = invertedChecked[de];
           let val = store.getTemplateData[`${templateEvent}-${value}`];
-          // if (val && ((hasChecked !== undefined && String(form.getFieldValue(`${store.currentEvent}-${hasChecked}`)) !== 'true') || hasChecked === undefined)) {
             form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-          // }
         });
 
-        // store.disableFields(Object.keys(store.affected), false);
         store.disableFields(Object.keys(store.inheritable), true);
 
-        Object.entries(store.affected).forEach(([k, v]) => {
-          if (String(allValues[`${store.currentEvent}-${k}`]) === 'true') {
-            store.disableFields([String(v)], false);
-          }
+        Object.entries(store.affected).forEach(([checkbox, de]) => {
+          const checkboxValue = String(allValues[`${store.currentEvent}-${checkbox}`]);
+          const disable = String(checkboxValue) !== 'true'
+          store.disableFields([String(de)], disable);
         })
+
       } else if (key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) !== 'true') {
         store.disableFields(Object.keys(store.affected), true);
         store.disableFields(Object.keys(store.inheritable), false);
@@ -363,14 +348,10 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         form.setFieldsValue({ [`${store.currentEvent}-gIyHDZCbUFN`]: '' })
       }
 
-      const foundAffected = affectedKeys.find((k: string) => `${store.currentEvent}-${k}` === key)
+      const foundAffected = affectedKeys.find((k: string) => `${store.currentEvent}-${k}` === key);
       if (foundAffected) {
-        const toAffect = store.affected[foundAffected]
-        if (String(value) === 'true') {
-          store.disableFields([toAffect], false);
-        } else {
-          store.disableFields([toAffect], true);
-        }
+        const toAffect = store.affected[foundAffected];
+        store.disableFields([toAffect], !value);
       }
 
       addDataElements([`${store.currentEvent}-BoM0YNDBUdy`, `${store.currentEvent}-VxTZaIwIfS8`, `${store.currentEvent}-gtPZBBL7rhj`, `${store.currentEvent}-UazX97Kqd3p`], form, `${store.currentEvent}-dr6OgCteAUm`);
