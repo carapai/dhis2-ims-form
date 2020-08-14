@@ -1,4 +1,4 @@
-import { flatten, fromPairs, keys, sum, isEmpty, invert } from 'lodash';
+import { flatten, fromPairs, isEmpty, keys, sum } from 'lodash';
 import { action, computed, observable } from "mobx";
 import moment from 'moment';
 import React from 'react';
@@ -226,14 +226,6 @@ class Store {
   @action queryTrackedEntityInstance = async (instance: string, refresh: boolean = true) => {
     this.error = null;
     this.loading = refresh;
-    // const query = {
-    //   instance: {
-    //     resource: `trackedEntityInstances/${instance}.json`,
-    //     params: {
-    //       fields: '*'
-    //     }
-    //   }
-    // }
 
     const api = this.d2.Api.getApi();
 
@@ -654,18 +646,18 @@ class Store {
       if (String(realValues.sBHTpu7aWMW) === 'true') {
         const { event: templateEvent } = this.getTemplateData;
         const rate = this.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1
-        const invertedChecked = invert(store.affected);
         Object.entries(this.inheritable).forEach(([de, value]) => {
-          const hasChecked = invertedChecked[de];
           let val = this.getTemplateData[`${templateEvent}-${value}`];
-          if ((hasChecked !== undefined && String(realValues[hasChecked]) !== 'true') || hasChecked === undefined) {
-            if (de === 'pin6sarb8cc') {
-              console.log('Yes')
-            }
-            realValues = { ...realValues, [de]: val }
-          }
+          realValues = { ...realValues, [de]: val }
         });
+
         realValues = performOperation(realValues, 'tyCCqrl6t1v', 'gsPwEWxXI6e', 'W83hRUEbXjo', '/');
+
+        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+        const teamGrantMPS = Number(realValues['W83hRUEbXjo']);
+        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+        realValues = { ...realValues, pin6sarb8cc: occContacts }
         realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
         realValues = performOperation(realValues, 'PGoc4AXIskG', 'uvWrgEqv06F', 'WEV1hAZk1zl', '/');
         realValues = performOperation(realValues, 'Z9LUqA3qR3i', 'Jhix7kMMW5f', 'zCSkGEoyFkV', '/');
@@ -738,13 +730,6 @@ class Store {
 
         realValues = addValues(['j8heE20u1T9', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
         realValues = addValues(['LaBr26m8aNY', 'iSDnwU0GRAL'], realValues, 'F4PyCcIgvZ1');
-
-        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-        const teamGrantMPS = Number(realValues['W83hRUEbXjo']);
-        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-
-        realValues = { ...realValues, pin6sarb8cc: occContacts }
       }
       return { ...realValues, eventDate: moment(eventDate), event, status }
     });
@@ -774,7 +759,7 @@ class Store {
       }).map((ps: any) => {
         let { dataElements, ...others } = ps;
         dataElements = dataElements.filter((de: any) => {
-          return this.hiddenDataElements.indexOf(de.id) === -1
+          return this.hiddenDataElements.indexOf(`${this.currentEvent}-${de.id}`) === -1
         }).map((de: any) => {
           if (de.id === 'gIyHDZCbUFN') {
             de = { ...de, optionSet: { options: [] } }
@@ -876,7 +861,6 @@ class Store {
         const s1 = this.currentTeamType.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
         const s2 = this.currentTeamName.map((x: any) => x.code).indexOf(aco[0]) !== -1 ? aco[0] : aco[1]
         return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-wlEpNQNoR9F`]: s1, [`${event}-K1YcxEoSq1B`]: s2, [`${event}-status`]: status }
-        // return { ...realValues, [`${event}-eventDate`]: moment(eventDate), event, [`${event}-status`]: status }
       }
       return {}
     }

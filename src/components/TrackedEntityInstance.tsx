@@ -132,9 +132,9 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
           let val = store.getTemplateData[`${templateEvent}-${value}`];
 
           store.disableFields([de], true);
-            if (val) {
-              store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-            }
+          if (val) {
+            store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+          }
         });
 
         Object.entries(store.affected).forEach(([checkbox, de]) => {
@@ -286,7 +286,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       if ((key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) === 'true')) {
         Object.entries(store.inheritable).forEach(([de, value]) => {
           let val = store.getTemplateData[`${templateEvent}-${value}`];
-            form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+          form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
         });
 
         store.disableFields(Object.keys(store.inheritable), true);
@@ -490,7 +490,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     });
 
     setValues(fromPairs(data));
-    const canInsert = [...keys(store.affected).map(k => `${store.currentEvent}-${k}`), `wlEpNQNoR9F`, `K1YcxEoSq1B`, `${store.currentEvent}-gIyHDZCbUFN`, `${store.currentEvent}-pnCFLcxbfUD`, `${store.currentEvent}-AKcvH7719Wp`, `${store.currentEvent}-sBHTpu7aWMW`]
+    const canInsert = [...keys(store.affected).map(k => `${store.currentEvent}-${k}`), `${store.currentEvent}-wlEpNQNoR9F`, `${store.currentEvent}-K1YcxEoSq1B`, `${store.currentEvent}-gIyHDZCbUFN`, `${store.currentEvent}-pnCFLcxbfUD`, `${store.currentEvent}-AKcvH7719Wp`, `${store.currentEvent}-sBHTpu7aWMW`]
     if (canInsert.indexOf(key) !== -1) {
       await insertRow(key, data)
     }

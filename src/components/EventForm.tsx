@@ -60,6 +60,11 @@ export const EventForm: FC<EventFormProps> = observer(({ initialValues, onValues
 
   return (<Form onValuesChange={onValuesChange(form)} {...layout} form={form} name="control-hooks" size="large" initialValues={initialValues} className="m-0 p-0">
     <ItemField key="eventDate" item={eventDate} onBlur={onBlur} />
+    {store.eventModalForm.slice(1).map((ps: any) => {
+      const disabled = ps.disabled || disabledTwo;
+      ps = { ...ps, id: `${event}-${ps.id}`, disabled }
+      return <ItemField key={ps.id} item={ps} onBlur={onBlur} />
+    })}
     <Collapse accordion={true} defaultActiveKey={[store.currentProgramStageSections[0].id]} className="m-0 p-0">
       {store.currentProgramStageSections.map((ps: any) => {
         return <Panel header={ps.name} key={ps.id} >
