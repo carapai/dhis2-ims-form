@@ -334,11 +334,12 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.unHideSection('JFpLMcht3jv');
         store.unHideSection('cYE1pL5JvWE');
         store.unHideSection('VURM40an49J');
-
-        Object.entries(store.inheritable).forEach(([de, value]) => {
-          let val = store.getTemplateData[`${templateEvent}-${value}`];
-          form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-        });
+        if (String(form.getFieldValue(`${store.currentEvent}-sBHTpu7aWMW`)) === 'true') {
+          Object.entries(store.inheritable).forEach(([de, value]) => {
+            let val = store.getTemplateData[`${templateEvent}-${value}`];
+            form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+          });
+        }
       }
 
       if (String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'No') {
@@ -382,7 +383,8 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.hideDataElement('LaBr26m8aNY')
         store.hideDataElement('F4PyCcIgvZ1')
       } else if (String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'Yes') {
-        store.unHideSection('TtGM27Gdc2H')
+        store.unHideSection('TtGM27Gdc2H');
+        store.unHideSection('cYE1pL5JvWE');
         store.unHideDataElement('F4PyCcIgvZ1')
         store.unHideDataElement('DwH5Iwha3UU')
         store.unHideDataElement('jZLnPmp18hY')
@@ -394,10 +396,20 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.unHideDataElement('CFn6FkmHuHH')
         store.unHideDataElement('c6D0SVzxt7A')
         store.unHideDataElement('LaBr26m8aNY')
-        Object.entries(store.inheritable).forEach(([de, value]) => {
-          let val = store.getTemplateData[`${templateEvent}-${value}`];
-          form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-        });
+
+        if (String(form.getFieldValue(`${store.currentEvent}-sBHTpu7aWMW`)) === 'true') {
+          Object.entries(store.inheritable).forEach(([de, value]) => {
+            let val = store.getTemplateData[`${templateEvent}-${value}`];
+            form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+          });
+        }
+
+        if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0) {
+          form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
+        }
       }
 
       if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) && !isNil(form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`))) {
@@ -514,6 +526,9 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
 
       addDataElements([`${store.currentEvent}-WyNHgVjv97i`, `${store.currentEvent}-PTeqHUCZVFd`, `${store.currentEvent}-qP3onIBOoJa`, `${store.currentEvent}-fFe4xMmrPZZ`], form, `${store.currentEvent}-JZo5Iw4geHp`)
       addDataElements([`${store.currentEvent}-KLzfFndIPqo`, `${store.currentEvent}-lOzK4T2eTga`, `${store.currentEvent}-M9pi5hjxhWr`, `${store.currentEvent}-awxAGJwj83W`], form, `${store.currentEvent}-iSDnwU0GRAL`);
+
+      console.log([form.getFieldValue(`${store.currentEvent}-WyNHgVjv97i`), form.getFieldValue(`${store.currentEvent}-PTeqHUCZVFd`), form.getFieldValue(`${store.currentEvent}-qP3onIBOoJa`), form.getFieldValue(`${store.currentEvent}-fFe4xMmrPZZ`)])
+      console.log([form.getFieldValue(`${store.currentEvent}-KLzfFndIPqo`), form.getFieldValue(`${store.currentEvent}-lOzK4T2eTga`), form.getFieldValue(`${store.currentEvent}-M9pi5hjxhWr`), form.getFieldValue(`${store.currentEvent}-awxAGJwj83W`)])
 
       addDataElements([`${store.currentEvent}-iSDnwU0GRAL`, `${store.currentEvent}-JZo5Iw4geHp`], form, `${store.currentEvent}-g0K25Yvn0IH`)
       addDataElements([`${store.currentEvent}-LaBr26m8aNY`, `${store.currentEvent}-j8heE20u1T9`], form, `${store.currentEvent}-F4PyCcIgvZ1`)
