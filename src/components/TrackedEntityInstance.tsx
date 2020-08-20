@@ -302,6 +302,104 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         store.disableFields(Object.keys(store.inheritable), false);
       }
 
+      if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0) {
+        store.hideSection('JFpLMcht3jv')
+        store.hideSection('cYE1pL5JvWE')
+        store.hideSection('VURM40an49J')
+        form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
+
+        form.setFieldsValue({ [`${store.currentEvent}-IZdmRdDWZpX`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-klxMWtWKP3v`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-Qs4QGZ9HoDC`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-tSZLIplM0Xg`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-DT02jGe9med`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-OmOmbzDM4iZ`]: '' });
+
+
+        form.setFieldsValue({ [`${store.currentEvent}-KLzfFndIPqo`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-lOzK4T2eTga`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-M9pi5hjxhWr`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-awxAGJwj83W`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-iSDnwU0GRAL`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-m0MhcXsb60u`]: '' });
+
+        form.setFieldsValue({ [`${store.currentEvent}-mybOLY5lriU`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-CFn6FkmHuHH`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-c6D0SVzxt7A`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-LaBr26m8aNY`]: '' });
+      } else if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) > 0) {
+        store.unHideSection('JFpLMcht3jv');
+        store.unHideSection('cYE1pL5JvWE');
+        store.unHideSection('VURM40an49J');
+
+        Object.entries(store.inheritable).forEach(([de, value]) => {
+          let val = store.getTemplateData[`${templateEvent}-${value}`];
+          form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+        });
+      }
+
+      if (String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'No') {
+        store.hideSection('TtGM27Gdc2H');
+        store.hideSection('cYE1pL5JvWE');
+
+        form.setFieldsValue({ [`${store.currentEvent}-DwH5Iwha3UU`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-jZLnPmp18hY`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-kJPWSamlUAK`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-puXos8qdR9S`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-j8heE20u1T9`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-m0MhcXsb60u`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-mybOLY5lriU`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-CFn6FkmHuHH`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-c6D0SVzxt7A`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-LaBr26m8aNY`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-F4PyCcIgvZ1`]: '' });
+
+        form.setFieldsValue({ [`${store.currentEvent}-BoM0YNDBUdy`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-VxTZaIwIfS8`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-gtPZBBL7rhj`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-UazX97Kqd3p`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-dr6OgCteAUm`]: '' });
+
+        form.setFieldsValue({ [`${store.currentEvent}-IZdmRdDWZpX`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-klxMWtWKP3v`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-Qs4QGZ9HoDC`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-tSZLIplM0Xg`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-DT02jGe9med`]: '' });
+        form.setFieldsValue({ [`${store.currentEvent}-OmOmbzDM4iZ`]: '' });
+
+        store.hideDataElement('DwH5Iwha3UU')
+        store.hideDataElement('jZLnPmp18hY')
+        store.hideDataElement('kJPWSamlUAK')
+        store.hideDataElement('puXos8qdR9S')
+        store.hideDataElement('j8heE20u1T9')
+        store.hideDataElement('m0MhcXsb60u')
+        store.hideDataElement('mybOLY5lriU')
+        store.hideDataElement('CFn6FkmHuHH')
+        store.hideDataElement('c6D0SVzxt7A')
+        store.hideDataElement('LaBr26m8aNY')
+        store.hideDataElement('F4PyCcIgvZ1')
+      } else if (String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'Yes') {
+        store.unHideSection('TtGM27Gdc2H')
+        store.unHideDataElement('F4PyCcIgvZ1')
+        store.unHideDataElement('DwH5Iwha3UU')
+        store.unHideDataElement('jZLnPmp18hY')
+        store.unHideDataElement('kJPWSamlUAK')
+        store.unHideDataElement('puXos8qdR9S')
+        store.unHideDataElement('j8heE20u1T9')
+        store.unHideDataElement('m0MhcXsb60u')
+        store.unHideDataElement('mybOLY5lriU')
+        store.unHideDataElement('CFn6FkmHuHH')
+        store.unHideDataElement('c6D0SVzxt7A')
+        store.unHideDataElement('LaBr26m8aNY')
+        Object.entries(store.inheritable).forEach(([de, value]) => {
+          let val = store.getTemplateData[`${templateEvent}-${value}`];
+          form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+        });
+      }
+
       if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) && !isNil(form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`))) {
         const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`) / form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`));
         form.setFieldsValue({ [`${store.currentEvent}-W83hRUEbXjo`]: newValue });
@@ -413,61 +511,12 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       form.setFieldsValue({ [`${store.currentEvent}-M9pi5hjxhWr`]: Math.ceil((z * ab * 2) / rate) })
       form.setFieldsValue({ [`${store.currentEvent}-awxAGJwj83W`]: Math.ceil((aa * ac) / rate) })
 
+
       addDataElements([`${store.currentEvent}-WyNHgVjv97i`, `${store.currentEvent}-PTeqHUCZVFd`, `${store.currentEvent}-qP3onIBOoJa`, `${store.currentEvent}-fFe4xMmrPZZ`], form, `${store.currentEvent}-JZo5Iw4geHp`)
-      addDataElements([`${store.currentEvent}-KLzfFndIPqo`, `${store.currentEvent}-lOzK4T2eTga`, `${store.currentEvent}-M9pi5hjxhWr`, `${store.currentEvent}-awxAGJwj83W`], form, `${store.currentEvent}-iSDnwU0GRAL`)
+      addDataElements([`${store.currentEvent}-KLzfFndIPqo`, `${store.currentEvent}-lOzK4T2eTga`, `${store.currentEvent}-M9pi5hjxhWr`, `${store.currentEvent}-awxAGJwj83W`], form, `${store.currentEvent}-iSDnwU0GRAL`);
 
       addDataElements([`${store.currentEvent}-iSDnwU0GRAL`, `${store.currentEvent}-JZo5Iw4geHp`], form, `${store.currentEvent}-g0K25Yvn0IH`)
       addDataElements([`${store.currentEvent}-LaBr26m8aNY`, `${store.currentEvent}-j8heE20u1T9`], form, `${store.currentEvent}-F4PyCcIgvZ1`)
-
-
-
-      if (key === `${store.currentEvent}-YRk2FTJDPx3` && Number(value) === 0) {
-        store.hideSection('JFpLMcht3jv')
-        store.hideSection('cYE1pL5JvWE')
-        store.hideSection('VURM40an49J')
-      } else if (key === `${store.currentEvent}-YRk2FTJDPx3` && Number(value) > 0) {
-        store.unHideSection('JFpLMcht3jv');
-        store.unHideSection('cYE1pL5JvWE');
-        store.unHideSection('VURM40an49J');
-        if (form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`) !== 'No') {
-          store.unHideSection('cYE1pL5JvWE')
-        }
-      }
-
-      if (key === `${store.currentEvent}-AKcvH7719Wp` && String(value) === 'No') {
-        store.hideSection('TtGM27Gdc2H');
-        store.hideSection('cYE1pL5JvWE');
-        store.hideDataElement('F4PyCcIgvZ1')
-        store.hideDataElement('DwH5Iwha3UU')
-        store.hideDataElement('jZLnPmp18hY')
-        store.hideDataElement('kJPWSamlUAK')
-        store.hideDataElement('puXos8qdR9S')
-        store.hideDataElement('j8heE20u1T9')
-        store.hideDataElement('m0MhcXsb60u')
-        store.hideDataElement('mybOLY5lriU')
-        store.hideDataElement('CFn6FkmHuHH')
-        store.hideDataElement('c6D0SVzxt7A')
-        store.hideDataElement('LaBr26m8aNY')
-        store.hideDataElement('F4PyCcIgvZ1')
-      } else if (key === `${store.currentEvent}-AKcvH7719Wp` && String(value) === 'Yes') {
-        store.unHideSection('TtGM27Gdc2H')
-        store.unHideDataElement('F4PyCcIgvZ1')
-        store.unHideDataElement('DwH5Iwha3UU')
-        store.unHideDataElement('jZLnPmp18hY')
-        store.unHideDataElement('kJPWSamlUAK')
-        store.unHideDataElement('puXos8qdR9S')
-        store.unHideDataElement('j8heE20u1T9')
-        store.unHideDataElement('m0MhcXsb60u')
-        store.unHideDataElement('mybOLY5lriU')
-        store.unHideDataElement('CFn6FkmHuHH')
-        store.unHideDataElement('c6D0SVzxt7A')
-        store.unHideDataElement('LaBr26m8aNY')
-        store.unHideDataElement('F4PyCcIgvZ1')
-        if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) !== 0) {
-          store.unHideSection('cYE1pL5JvWE');
-        }
-      }
-
       if (String(form.getFieldValue(`${store.currentEvent}-sBHTpu7aWMW`)) === 'true') {
         const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
         const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
@@ -489,15 +538,23 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       return [k, v]
     });
 
+    store.setForm(form);
+
     setValues(fromPairs(data));
     const canInsert = [...keys(store.affected).map(k => `${store.currentEvent}-${k}`), `${store.currentEvent}-wlEpNQNoR9F`, `${store.currentEvent}-K1YcxEoSq1B`, `${store.currentEvent}-gIyHDZCbUFN`, `${store.currentEvent}-pnCFLcxbfUD`, `${store.currentEvent}-AKcvH7719Wp`, `${store.currentEvent}-sBHTpu7aWMW`]
+
     if (canInsert.indexOf(key) !== -1) {
       await insertRow(key, data)
     }
   }
 
   const onBlur = (id: string) => async (e: any) => {
-    await insertValues(id);
+    try {
+      await store.form.validateFields();
+      await insertValues(id);
+    } catch (errorInfo) {
+      console.log('Failed:', errorInfo);
+    }
   }
 
   const onFinish = async (values: any) => {

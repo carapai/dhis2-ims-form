@@ -82,6 +82,8 @@ export const performOperation = (dataValues: any, leftElement: string, rightElem
       break;
   }
 
+  // console.log(a, b, value)
+
   return { ...dataValues, [affectedElement]: value }
 }
 

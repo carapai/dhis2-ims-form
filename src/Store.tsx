@@ -659,10 +659,20 @@ class Store {
         const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
         realValues = { ...realValues, pin6sarb8cc: occContacts }
         realValues = performOperation(realValues, 'W83hRUEbXjo', 'XIqu530X3BA', 'PGoc4AXIskG', '*');
-        realValues = performOperation(realValues, 'PGoc4AXIskG', 'uvWrgEqv06F', 'WEV1hAZk1zl', '/');
-        realValues = performOperation(realValues, 'Z9LUqA3qR3i', 'Jhix7kMMW5f', 'zCSkGEoyFkV', '/');
+
+        if (String(realValues['zrVBd7rIed2']) !== 'true') {
+          realValues = performOperation(realValues, 'PGoc4AXIskG', 'uvWrgEqv06F', 'WEV1hAZk1zl', '/');
+        }
+
+        if (String(realValues['RGc7vhjB0Mt']) !== 'true') {
+          realValues = performOperation(realValues, 'Z9LUqA3qR3i', 'Jhix7kMMW5f', 'zCSkGEoyFkV', '/');
+        }
+
         realValues = performOperation(realValues, 'zCSkGEoyFkV', 'pin6sarb8cc', 'cEQikKW778D', '+');
-        realValues = performOperation(realValues, 'zCSkGEoyFkV', 'sqckP81B8Go', 'fLD4wuUVi1i', '/');
+
+        if (String(realValues['psv1I7yysVD']) !== 'true') {
+          realValues = performOperation(realValues, 'cEQikKW778D', 'sqckP81B8Go', 'fLD4wuUVi1i', '/');
+        }
 
         realValues = addValues(['BoM0YNDBUdy', 'VxTZaIwIfS8', 'gtPZBBL7rhj', 'UazX97Kqd3p'], realValues, 'dr6OgCteAUm');
         realValues = addValues(['IZdmRdDWZpX', 'klxMWtWKP3v', 'Qs4QGZ9HoDC', 'tSZLIplM0Xg'], realValues, 'DT02jGe9med');
@@ -708,6 +718,12 @@ class Store {
         let tgjEventMeals = (r * w) / rate;
         let admin = (m * c) / rate;
 
+
+        let teamTransport = Math.ceil((x * ab * 2) / rate);
+        let teamFood = Math.ceil((y * ab * 2) / rate);
+        let teamLodging = Math.ceil((z * ab * 2) / rate);
+        let teamAdmin = Math.ceil((aa * ac) / rate);
+
         if (Number(realValues['tyCCqrl6t1v']) === 0) {
           transportGrant = (j * 3 * 4) / rate;
           mpEventSnaks = 0;
@@ -715,21 +731,30 @@ class Store {
           admin = 0;
         }
 
+        if (Number(realValues['YRk2FTJDPx3']) === 0) {
+          teamTransport = 0
+          teamFood = 0;
+          teamLodging = 0;
+          teamAdmin = 0;
+        }
+
+
         realValues = { ...realValues, WyNHgVjv97i: Math.ceil(transportGrant) };
         realValues = { ...realValues, PTeqHUCZVFd: Math.ceil(mpEventSnaks) };
         realValues = { ...realValues, qP3onIBOoJa: Math.ceil(tgjEventMeals) };
         realValues = { ...realValues, fFe4xMmrPZZ: Math.ceil(admin) };
 
-        realValues = { ...realValues, KLzfFndIPqo: Math.ceil((x * ab * 2) / rate) };
-        realValues = { ...realValues, lOzK4T2eTga: Math.ceil((y * ab * 2) / rate) };
-        realValues = { ...realValues, M9pi5hjxhWr: Math.ceil((z * ab * 2) / rate) };
-        realValues = { ...realValues, awxAGJwj83W: Math.ceil((aa * ac) / rate) };
+        realValues = { ...realValues, KLzfFndIPqo: teamTransport };
+        realValues = { ...realValues, lOzK4T2eTga: teamFood };
+        realValues = { ...realValues, M9pi5hjxhWr: teamLodging };
+        realValues = { ...realValues, awxAGJwj83W: teamAdmin };
 
         realValues = addValues(['WyNHgVjv97i', 'PTeqHUCZVFd', 'qP3onIBOoJa', 'fFe4xMmrPZZ'], realValues, 'JZo5Iw4geHp')
         realValues = addValues(['KLzfFndIPqo', 'lOzK4T2eTga', 'M9pi5hjxhWr', 'awxAGJwj83W'], realValues, 'iSDnwU0GRAL')
 
-        realValues = addValues(['j8heE20u1T9', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
-        realValues = addValues(['LaBr26m8aNY', 'iSDnwU0GRAL'], realValues, 'F4PyCcIgvZ1');
+        realValues = addValues(['iSDnwU0GRAL', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
+        realValues = addValues(['LaBr26m8aNY', 'j8heE20u1T9'], realValues, 'F4PyCcIgvZ1');
+
       }
       return { ...realValues, eventDate: moment(eventDate), event, status }
     });
@@ -752,6 +777,16 @@ class Store {
     return {}
   }
 
+  @computed get currentDataElements() {
+    if (this.currentProgramStageDetails) {
+      const elements = this.currentProgramStageDetails.programStageDataElements.map((psde: any) => {
+        return [psde.dataElement.id, psde.compulsory]
+      });
+      return fromPairs(elements)
+    }
+    return {}
+  }
+
   @computed get currentProgramStageSections() {
     if (this.currentProgramStageDetails) {
       return this.currentProgramStageDetails.programStageSections.filter((ps: any) => {
@@ -764,7 +799,7 @@ class Store {
           if (de.id === 'gIyHDZCbUFN') {
             de = { ...de, optionSet: { options: [] } }
           }
-          return de
+          return { ...de, compulsory: this.currentDataElements[de.id] || false }
         });
         return { ...others, dataElements }
       })
