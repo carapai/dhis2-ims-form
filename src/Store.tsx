@@ -57,7 +57,7 @@ class Store {
     "gY8m7JwBy9p",
     "eiHYxW2Ybjv",
     "CiOsAwrfUaP",
-    "pin6sarb8cc",
+    // "pin6sarb8cc",
     "PGoc4AXIskG",
     "cEQikKW778D"
   ]
@@ -83,7 +83,8 @@ class Store {
     JbckYmJRNSl: 'ZmThLdyIMn0',
     F04W7zc8KgV: 'xCR6kMruEIb',
     PNleJ4ejsuW: 'EylCEWx1bYJ',
-    rE38dvsAtEw: 'NlKNTt8lRtc'
+    rE38dvsAtEw: 'NlKNTt8lRtc',
+    pin6sarb8cc: 'PGCvDSP3Y9S'
   }
 
   @observable hiddenSections: string[] = [];

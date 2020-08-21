@@ -47,6 +47,90 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     setVisible(false)
   };
 
+
+  const afterExpanding = (record: any) => {
+    const { event: templateEvent } = store.getTemplateData;
+    store.setTeamType(record[`${record.event}-pnCFLcxbfUD`])
+    store.setExpandedRows([record.event]);
+    if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) === 0 || !record[`${store.currentEvent}-YRk2FTJDPx3`]) {
+      store.hideSection('JFpLMcht3jv')
+      store.hideSection('cYE1pL5JvWE')
+      store.hideSection('VURM40an49J')
+    } else if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) > 0) {
+      store.unHideSection('JFpLMcht3jv');
+      store.unHideSection('cYE1pL5JvWE');
+      store.unHideSection('VURM40an49J');
+      if (record[`${store.currentEvent}-AKcvH7719Wp`] !== 'No') {
+        store.unHideSection('cYE1pL5JvWE')
+      } else {
+        store.hideSection('cYE1pL5JvWE')
+      }
+    }
+
+    store.form.setFieldsValue({ [`${store.currentEvent}-eiHYxW2Ybjv`]: record[`${store.currentEvent}-YRk2FTJDPx3`] })
+    store.form.setFieldsValue({ [`${store.currentEvent}-CiOsAwrfUaP`]: record[`${store.currentEvent}-hXrMH1XTngh`] })
+
+    if (String(record[`${store.currentEvent}-AKcvH7719Wp`]) !== 'Yes') {
+      store.hideSection('TtGM27Gdc2H');
+      store.hideSection('cYE1pL5JvWE');
+      store.hideDataElement('F4PyCcIgvZ1')
+      store.hideDataElement('DwH5Iwha3UU')
+      store.hideDataElement('jZLnPmp18hY')
+      store.hideDataElement('kJPWSamlUAK')
+      store.hideDataElement('puXos8qdR9S')
+      store.hideDataElement('j8heE20u1T9')
+      store.hideDataElement('m0MhcXsb60u')
+      store.hideDataElement('mybOLY5lriU')
+      store.hideDataElement('CFn6FkmHuHH')
+      store.hideDataElement('c6D0SVzxt7A')
+      store.hideDataElement('LaBr26m8aNY')
+      store.hideDataElement('F4PyCcIgvZ1')
+    } else if (record[`${store.currentEvent}-AKcvH7719Wp`] === 'Yes') {
+      store.unHideSection('TtGM27Gdc2H');
+      store.unHideDataElement('F4PyCcIgvZ1')
+      store.unHideDataElement('DwH5Iwha3UU')
+      store.unHideDataElement('jZLnPmp18hY')
+      store.unHideDataElement('kJPWSamlUAK')
+      store.unHideDataElement('puXos8qdR9S')
+      store.unHideDataElement('j8heE20u1T9')
+      store.unHideDataElement('m0MhcXsb60u')
+      store.unHideDataElement('mybOLY5lriU')
+      store.unHideDataElement('CFn6FkmHuHH')
+      store.unHideDataElement('c6D0SVzxt7A')
+      store.unHideDataElement('LaBr26m8aNY')
+      store.unHideDataElement('F4PyCcIgvZ1')
+      if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) !== 0) {
+        store.unHideSection('cYE1pL5JvWE')
+      } else {
+        store.hideSection('cYE1pL5JvWE')
+      }
+    }
+    if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) === 'true') {
+      Object.entries(store.inheritable).forEach(([de, value]) => {
+        let val = store.getTemplateData[`${templateEvent}-${value}`];
+        store.disableFields([de], true);
+        if (val) {
+          store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
+        }
+      });
+
+      Object.entries(store.affected).forEach(([checkbox, de]) => {
+        const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
+        const disable = String(checkboxValue) !== 'true'
+        store.disableFields([String(de)], disable);
+      });
+
+      const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+      const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+      const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
+      const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+      store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+    } else if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) !== 'true') {
+      store.disableFields(Object.keys(store.affected), true);
+      store.disableFields(Object.keys(store.inheritable), false);
+    }
+  }
+
   const addModalForm = async (val: any) => {
     const { eventDate, ...others } = val;
     const attributeCategoryOptions = Object.values(others).join(';');
@@ -63,92 +147,15 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
     await store.queryTrackedEntityInstance(store.enrollment.trackedEntityInstance, false);
     store.setCurrentEvent(event);
     store.disableFields([], false, true)
-    store.setExpandedRows([event]);
     setVisible(false);
+    store.setExpandedRows([event]);
+    afterExpanding(store.currentEventData)
   }
 
   const onExpand = (expanded: any, record: any) => {
     store.setCurrentEvent(record.event);
-    const { event: templateEvent } = store.getTemplateData;
     if (expanded) {
-      store.setTeamType(record[`${record.event}-pnCFLcxbfUD`])
-      store.setExpandedRows([record.event]);
-      if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) === 0 || !record[`${store.currentEvent}-YRk2FTJDPx3`]) {
-        store.hideSection('JFpLMcht3jv')
-        store.hideSection('cYE1pL5JvWE')
-        store.hideSection('VURM40an49J')
-      } else if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) > 0) {
-        store.unHideSection('JFpLMcht3jv');
-        store.unHideSection('cYE1pL5JvWE');
-        store.unHideSection('VURM40an49J');
-        if (record[`${store.currentEvent}-AKcvH7719Wp`] !== 'No') {
-          store.unHideSection('cYE1pL5JvWE')
-        } else {
-          store.hideSection('cYE1pL5JvWE')
-        }
-      }
-
-      store.form.setFieldsValue({ [`${store.currentEvent}-eiHYxW2Ybjv`]: record[`${store.currentEvent}-YRk2FTJDPx3`] })
-      store.form.setFieldsValue({ [`${store.currentEvent}-CiOsAwrfUaP`]: record[`${store.currentEvent}-hXrMH1XTngh`] })
-
-
-      if (String(record[`${store.currentEvent}-AKcvH7719Wp`]) !== 'Yes') {
-        store.hideSection('TtGM27Gdc2H');
-        store.hideSection('cYE1pL5JvWE');
-        store.hideDataElement('F4PyCcIgvZ1')
-        store.hideDataElement('DwH5Iwha3UU')
-        store.hideDataElement('jZLnPmp18hY')
-        store.hideDataElement('kJPWSamlUAK')
-        store.hideDataElement('puXos8qdR9S')
-        store.hideDataElement('j8heE20u1T9')
-        store.hideDataElement('m0MhcXsb60u')
-        store.hideDataElement('mybOLY5lriU')
-        store.hideDataElement('CFn6FkmHuHH')
-        store.hideDataElement('c6D0SVzxt7A')
-        store.hideDataElement('LaBr26m8aNY')
-        store.hideDataElement('F4PyCcIgvZ1')
-      } else if (record[`${store.currentEvent}-AKcvH7719Wp`] === 'Yes') {
-        store.unHideSection('TtGM27Gdc2H');
-        store.unHideDataElement('F4PyCcIgvZ1')
-        store.unHideDataElement('DwH5Iwha3UU')
-        store.unHideDataElement('jZLnPmp18hY')
-        store.unHideDataElement('kJPWSamlUAK')
-        store.unHideDataElement('puXos8qdR9S')
-        store.unHideDataElement('j8heE20u1T9')
-        store.unHideDataElement('m0MhcXsb60u')
-        store.unHideDataElement('mybOLY5lriU')
-        store.unHideDataElement('CFn6FkmHuHH')
-        store.unHideDataElement('c6D0SVzxt7A')
-        store.unHideDataElement('LaBr26m8aNY')
-        store.unHideDataElement('F4PyCcIgvZ1')
-        if (Number(record[`${store.currentEvent}-YRk2FTJDPx3`]) !== 0) {
-          store.unHideSection('cYE1pL5JvWE')
-        } else {
-          store.hideSection('cYE1pL5JvWE')
-        }
-      }
-      if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) === 'true') {
-        Object.entries(store.inheritable).forEach(([de, value]) => {
-          let val = store.getTemplateData[`${templateEvent}-${value}`];
-
-          store.disableFields([de], true);
-          if (val) {
-            store.form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
-          }
-        });
-
-        Object.entries(store.affected).forEach(([checkbox, de]) => {
-          const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
-          const disable = String(checkboxValue) !== 'true'
-          store.disableFields([String(de)], disable);
-        });
-
-        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-        const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
-        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-        store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
-      }
+      afterExpanding(record);
     } else {
       store.setExpandedRows([]);
     }
@@ -293,8 +300,8 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
 
         Object.entries(store.affected).forEach(([checkbox, de]) => {
           const checkboxValue = String(allValues[`${store.currentEvent}-${checkbox}`]);
-          const disable = String(checkboxValue) !== 'true'
-          store.disableFields([String(de)], disable);
+          const disable = String(checkboxValue) === 'true';
+          store.disableFields([String(checkbox)], disable);
         })
 
       } else if (key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) !== 'true') {
@@ -403,13 +410,15 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
             form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
           });
         }
+      }
 
-        if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0) {
-          form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
-          form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
-          form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
-          form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
-        }
+      if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0 || String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'No') {
+        console.log('Why is this here')
+        form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
+        form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
+        store.hideSection('cYE1pL5JvWE');
       }
 
       if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) && !isNil(form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`))) {
@@ -442,8 +451,8 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         form.setFieldsValue({ [`${store.currentEvent}-cEQikKW778D`]: val });
       }
 
-      if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) && !isNil(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`))) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-cEQikKW778D`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
+      if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) && !isNil(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`))) {
+        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
         form.setFieldsValue({ [`${store.currentEvent}-fLD4wuUVi1i`]: val });
       }
 
@@ -526,9 +535,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
 
       addDataElements([`${store.currentEvent}-WyNHgVjv97i`, `${store.currentEvent}-PTeqHUCZVFd`, `${store.currentEvent}-qP3onIBOoJa`, `${store.currentEvent}-fFe4xMmrPZZ`], form, `${store.currentEvent}-JZo5Iw4geHp`)
       addDataElements([`${store.currentEvent}-KLzfFndIPqo`, `${store.currentEvent}-lOzK4T2eTga`, `${store.currentEvent}-M9pi5hjxhWr`, `${store.currentEvent}-awxAGJwj83W`], form, `${store.currentEvent}-iSDnwU0GRAL`);
-
-      console.log([form.getFieldValue(`${store.currentEvent}-WyNHgVjv97i`), form.getFieldValue(`${store.currentEvent}-PTeqHUCZVFd`), form.getFieldValue(`${store.currentEvent}-qP3onIBOoJa`), form.getFieldValue(`${store.currentEvent}-fFe4xMmrPZZ`)])
-      console.log([form.getFieldValue(`${store.currentEvent}-KLzfFndIPqo`), form.getFieldValue(`${store.currentEvent}-lOzK4T2eTga`), form.getFieldValue(`${store.currentEvent}-M9pi5hjxhWr`), form.getFieldValue(`${store.currentEvent}-awxAGJwj83W`)])
 
       addDataElements([`${store.currentEvent}-iSDnwU0GRAL`, `${store.currentEvent}-JZo5Iw4geHp`], form, `${store.currentEvent}-g0K25Yvn0IH`)
       addDataElements([`${store.currentEvent}-LaBr26m8aNY`, `${store.currentEvent}-j8heE20u1T9`], form, `${store.currentEvent}-F4PyCcIgvZ1`)
