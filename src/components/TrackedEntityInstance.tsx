@@ -410,20 +410,31 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
             form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
           });
         }
+
+        if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0) {
+          form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
+          form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
+        }
       }
 
       if (Number(form.getFieldValue(`${store.currentEvent}-YRk2FTJDPx3`)) === 0 || String(form.getFieldValue(`${store.currentEvent}-AKcvH7719Wp`)) === 'No') {
-        console.log('Why is this here')
-        form.setFieldsValue({ [`${store.currentEvent}-JbckYmJRNSl`]: 0 });
-        form.setFieldsValue({ [`${store.currentEvent}-F04W7zc8KgV`]: 0 });
-        form.setFieldsValue({ [`${store.currentEvent}-PNleJ4ejsuW`]: 0 });
-        form.setFieldsValue({ [`${store.currentEvent}-rE38dvsAtEw`]: 0 });
         store.hideSection('cYE1pL5JvWE');
       }
 
       if (String(form.getFieldValue(`${store.currentEvent}-DLmm6TZXbxO`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) && !isNil(form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`))) {
         const newValue = Math.ceil(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`) / form.getFieldValue(`${store.currentEvent}-gsPwEWxXI6e`));
         form.setFieldsValue({ [`${store.currentEvent}-W83hRUEbXjo`]: newValue });
+      }
+
+      if (String(form.getFieldValue(`${store.currentEvent}-RGc7vhjB0Mt`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) && !isNil(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`))) {
+        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) / Number(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)));
+        form.setFieldsValue({ [`${store.currentEvent}-zCSkGEoyFkV`]: val });
+        if (Number(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) === 0 && Number(val) > 0) {
+          form.setFieldsValue({ [`${store.currentEvent}-W83hRUEbXjo`]: Math.ceil(val / 2) });
+          form.setFieldsValue({ [`${store.currentEvent}-XIqu530X3BA`]: 0 })
+        }
       }
 
       if (!isNil(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) && !isNil(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))) {
@@ -439,11 +450,6 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       if (String(form.getFieldValue(`${store.currentEvent}-zrVBd7rIed2`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)) && !isNil(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`))) {
         const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`)) / Number(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)));
         form.setFieldsValue({ [`${store.currentEvent}-WEV1hAZk1zl`]: val });
-      }
-
-      if (String(form.getFieldValue(`${store.currentEvent}-RGc7vhjB0Mt`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) && !isNil(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`))) {
-        const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) / Number(form.getFieldValue(`${store.currentEvent}-Jhix7kMMW5f`)));
-        form.setFieldsValue({ [`${store.currentEvent}-zCSkGEoyFkV`]: val });
       }
 
       if (!isNil(form.getFieldValue(`${store.currentEvent}-pin6sarb8cc`)) && !isNil(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`))) {
@@ -515,7 +521,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       let tgjEventMeals = (r * w) / rate;
       let admin = (m * c) / rate;
 
-      if (Number(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) === 0) {
+      if (Number(form.getFieldValue(`${store.currentEvent}-tyCCqrl6t1v`)) === 0 && Number(form.getFieldValue(`${store.currentEvent}-Z9LUqA3qR3i`)) === 0) {
         transportGrant = (j * 3 * 4) / rate;
         mpEventSnacks = 0;
         tgjEventMeals = 0;

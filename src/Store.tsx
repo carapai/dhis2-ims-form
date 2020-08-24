@@ -644,6 +644,7 @@ class Store {
         }
         return [dv.dataElement, value]
       }));
+
       if (String(realValues.sBHTpu7aWMW) === 'true') {
         const { event: templateEvent } = this.getTemplateData;
         const rate = this.getTemplateData[`${templateEvent}-vz7oWyEKTv2`] || 1
@@ -651,6 +652,10 @@ class Store {
           let val = this.getTemplateData[`${templateEvent}-${value}`];
           realValues = { ...realValues, [de]: val }
         });
+
+        if (Number(realValues.tyCCqrl6t1v) === 0 && Number(realValues.zCSkGEoyFkV) > 0) {
+          realValues = { ...realValues, W83hRUEbXjo: Math.ceil(Number(realValues.zCSkGEoyFkV) / 2), XIqu530X3BA: 0 };
+        }
 
         realValues = performOperation(realValues, 'tyCCqrl6t1v', 'gsPwEWxXI6e', 'W83hRUEbXjo', '/');
 
@@ -672,7 +677,7 @@ class Store {
         realValues = performOperation(realValues, 'zCSkGEoyFkV', 'pin6sarb8cc', 'cEQikKW778D', '+');
 
         if (String(realValues['psv1I7yysVD']) !== 'true') {
-          realValues = performOperation(realValues, 'cEQikKW778D', 'sqckP81B8Go', 'fLD4wuUVi1i', '/');
+          realValues = performOperation(realValues, 'zCSkGEoyFkV', 'sqckP81B8Go', 'fLD4wuUVi1i', '/');
         }
 
         realValues = addValues(['BoM0YNDBUdy', 'VxTZaIwIfS8', 'gtPZBBL7rhj', 'UazX97Kqd3p'], realValues, 'dr6OgCteAUm');
@@ -702,7 +707,7 @@ class Store {
         const v = Number(realValues['Wxa3cC9tjUK']) || 0;
         const t = Number(realValues['fLD4wuUVi1i']) || 0;
         const u = Number(realValues['YUH3uoLn1me']) || 0;
-        const e = Number(realValues['PGoc4AXIskG']) || 0;
+        const ex = Number(realValues['PGoc4AXIskG']) || 0;
         const l = Number(realValues['uA3G2zQ14rk']) || 0;
         const r = Number(realValues['cEQikKW778D']) || 0;
         const w = Number(realValues['qKTeyWi7MVz']) || 0;
@@ -715,7 +720,7 @@ class Store {
         const ac = Number(realValues['CiOsAwrfUaP']) || 0;
 
         let transportGrant = ((i * 3 * Math.ceil(c / 40)) + (j * 3 * 4) + (g * h * k) + (v * t * u)) / rate;
-        let mpEventSnaks = (e * l) / rate;
+        let mpEventSnaks = (ex * l) / rate;
         let tgjEventMeals = (r * w) / rate;
         let admin = (m * c) / rate;
 
@@ -725,7 +730,7 @@ class Store {
         let teamLodging = Math.ceil((z * ab * 2) / rate);
         let teamAdmin = Math.ceil((aa * ac) / rate);
 
-        if (Number(realValues['tyCCqrl6t1v']) === 0) {
+        if (Number(realValues['tyCCqrl6t1v']) === 0 && Number(realValues['Z9LUqA3qR3i']) === 0) {
           transportGrant = (j * 3 * 4) / rate;
           mpEventSnaks = 0;
           tgjEventMeals = 0;
@@ -755,8 +760,11 @@ class Store {
 
         realValues = addValues(['iSDnwU0GRAL', 'JZo5Iw4geHp'], realValues, 'g0K25Yvn0IH')
         realValues = addValues(['LaBr26m8aNY', 'j8heE20u1T9'], realValues, 'F4PyCcIgvZ1');
-
       }
+
+
+
+
       return { ...realValues, eventDate: moment(eventDate), event, status }
     });
   }
