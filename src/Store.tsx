@@ -24,7 +24,7 @@ class Store {
   @observable checkedKeys: string[] = [];
   @observable autoExpandParent: boolean = true;
   @observable form: any;
-  @observable expandedRows: string[] = []
+  @observable expandedRows: string[] = [];
   @observable error: any = null;
   @observable d2: any;
 
@@ -84,7 +84,7 @@ class Store {
     F04W7zc8KgV: 'xCR6kMruEIb',
     PNleJ4ejsuW: 'EylCEWx1bYJ',
     rE38dvsAtEw: 'NlKNTt8lRtc',
-    pin6sarb8cc: 'PGCvDSP3Y9S'
+    // pin6sarb8cc: 'PGCvDSP3Y9S'
   }
 
   @observable hiddenSections: string[] = [];
@@ -94,12 +94,14 @@ class Store {
     DLmm6TZXbxO: 'W83hRUEbXjo',
     zrVBd7rIed2: 'WEV1hAZk1zl',
     RGc7vhjB0Mt: 'zCSkGEoyFkV',
-    psv1I7yysVD: 'fLD4wuUVi1i'
+    psv1I7yysVD: 'fLD4wuUVi1i',
+    C9gU1Rrz2og: 'pin6sarb8cc'
   }
 
   @observable countries: any[] = [];
   @observable teamType: string = ''
-  @observable descendants: any[] = []
+  @observable descendants: any[] = [];
+  @observable enrollmentDate: moment.Moment | undefined | null;
 
   @action setEngine = async (engine: any) => {
     this.engine = engine;
@@ -227,14 +229,13 @@ class Store {
   @action queryTrackedEntityInstance = async (instance: string, refresh: boolean = true) => {
     this.error = null;
     this.loading = refresh;
-
     const api = this.d2.Api.getApi();
-
     try {
       const trackedEntityInstance = await api.get(`trackedEntityInstances/${instance}.json`, {
         fields: '*'
       });
       this.instance = trackedEntityInstance;
+      this.enrollmentDate = moment(trackedEntityInstance.enrollments[0].enrollmentDate);
       this.selectedOrgUnit = this.instance.orgUnit;
       if (this.currentProgramStage === 'nNMTjdvTh7r' && !isEmpty(this.getTemplateData)) {
         this.currentEvent = this.getTemplateData.event;
@@ -335,7 +336,9 @@ class Store {
       try {
         const { headers, rows } = await api.get(`trackedEntityInstances/query.json`, {
           program: this.currentProgram,
-          ou: this.selectedOrgUnit
+          ou: this.selectedOrgUnit,
+          ouMode: 'SELECTED',
+          order: 'created:desc'
         })
         const foundHeaders = headers.map((h: any) => h["name"]);
         this.data = rows.map((r: any) => {
@@ -463,6 +466,21 @@ class Store {
     }
   }
 
+  @action onEnrollmentDateChange = async (date: moment.Moment | null, dateString: string) => {
+    if (date !== null && this.instance) {
+      const { events, relationships, ...realEnrollment } = this.instance.enrollments[0];
+      const enrollment = { ...realEnrollment, enrollmentDate: dateString };
+
+      const api = this.d2.Api.getApi();
+      try {
+        await api.update(`enrollments/${enrollment.enrollment}`, enrollment);
+      } catch (error) {
+        console.log(error);
+      }
+      this.enrollmentDate = date;
+    }
+  }
+
   @computed
   get organisationUnits() {
     const units = this.userOrgUnits.map((unit: any) => {
@@ -514,6 +532,14 @@ class Store {
       })
     }
     return []
+  }
+
+  @computed get currentEnrollmentDate() {
+    if (this.instance) {
+      const { enrollmentDate } = this.instance.enrollments[0];
+      return moment(enrollmentDate).format('YYYY-MM-DD')
+    }
+    return undefined;
   }
 
   @computed get teamGrantData() {

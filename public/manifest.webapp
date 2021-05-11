@@ -7,17 +7,17 @@
     }
   },
   "appType": "APP",
-  "name": "OCC Country Grant Tracker",
-  "version": "0.3.4",
-  "description": "OCC Country Grant Tracker",
+  "name": "COUNTRY GRANT",
+  "version": "0.3.5",
+  "description": "COUNTRY GRANT",
   "icons": {
-    "16": "logo_front.png",
-    "48": "logo_front.png",
-    "128": "logo_front.png"
+    "16": "occ-logo.svg",
+    "48": "occ-logo.svg",
+    "128": "occ-logo.svg"
   },
   "developer": {
-    "name": "HISP",
-    "url": "http://dhis2.org"
+    "name": "HISP Uganda",
+    "url": "https://hispuganda.org"
   },
-  "manifest_generated_at": "Mon Aug 24 2020 14:44:47 GMT+0300 (East Africa Time)"
+  "manifest_generated_at": "Mon Oct 26 2020 21:43:42 GMT+0300 (East Africa Time)"
 }

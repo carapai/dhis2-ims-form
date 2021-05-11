@@ -61,18 +61,18 @@
     ]
   },
   "manifest.webapp": {
-    "version": "0.3.4",
-    "name": "OCC Country Grant Tracker",
-    "description": "OCC Country Grant Tracker",
+    "version": "0.3.5",
+    "name": "COUNTRY GRANT",
+    "description": "COUNTRY GRANT",
     "launch_path": "index.html",
     "icons": {
-      "16": "logo_front.png",
-      "48": "logo_front.png",
-      "128": "logo_front.png"
+      "16": "occ-logo.svg",
+      "48": "occ-logo.svg",
+      "128": "occ-logo.svg"
     },
     "developer": {
-      "name": "HISP",
-      "url": "http://dhis2.org"
+      "name": "HISP Uganda",
+      "url": "https://hispuganda.org"
     },
     "default_locale": "en",
     "activities": {

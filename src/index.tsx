@@ -12,7 +12,11 @@ import "mobx-react-lite/batchingForReactDom";
 import Loading from './components/Loading';
 import { sortNodesAndChildren } from './utils';
 
-const baseUrl = process.env.REACT_APP_DHIS2_BASE_URL || 'http://localhost:8080/';
+let baseUrl = process.env.REACT_APP_DHIS2_BASE_URL || 'http://localhost:8080/';
+
+if (process.env.NODE_ENV === 'production') {
+  baseUrl = '../../../'
+}
 
 const config = {
   baseUrl: baseUrl + 'api',

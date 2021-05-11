@@ -1,4 +1,4 @@
-import { Button, Card, Input, Menu, Popconfirm, Select, Table, Tooltip } from "antd";
+import { Button, Card, DatePicker, Input, Menu, Popconfirm, Select, Table, Tooltip } from "antd";
 import { FormInstance } from "antd/lib/form";
 import { fromPairs, isNil, keys } from "lodash";
 import { observer } from "mobx-react";
@@ -31,7 +31,7 @@ const convert = (rate: number, dataElement: string, affectedDataElement: string,
 export const TrackedEntityInstance: FC<any> = observer(() => {
   const store = useStore();
   const [visible, setVisible] = useState<boolean>(false);
-  const { instance, program } = useParams();
+  const { instance, program }: any = useParams();
   const [values, setValues] = useState<any>();
   const history = useHistory();
   const affectedKeys = keys(store.affected);
@@ -114,19 +114,22 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         }
       });
 
-      Object.entries(store.affected).forEach(([checkbox, de]) => {
-        const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
-        const disable = String(checkboxValue) !== 'true'
-        store.disableFields([String(de)], disable);
-      });
+      // Object.entries(store.affected).forEach(([checkbox, de]) => {
+      //   const checkboxValue = record[`${store.currentEvent}-${checkbox}`];
+      //   const disable = String(checkboxValue) !== 'true'
+      //   store.disableFields([String(de)], disable);
+      // });
 
-      const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-      const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-      const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
-      const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-      store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+      if (String(record[`${store.currentEvent}-C9gU1Rrz2og`]) !== 'true') {
+        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+        const teamGrantMPS = Number(record[`${store.currentEvent}-W83hRUEbXjo`]);
+        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+        store.form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+      }
+
     } else if (String(record[`${store.currentEvent}-sBHTpu7aWMW`]) !== 'true') {
-      store.disableFields(Object.keys(store.affected), true);
+      // store.disableFields(Object.keys(store.affected), true);
       store.disableFields(Object.keys(store.inheritable), false);
     }
   }
@@ -296,7 +299,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
           form.setFieldsValue({ [`${store.currentEvent}-${de}`]: val });
         });
 
-        store.disableFields(Object.keys(store.inheritable), true);
+        // store.disableFields(Object.keys(store.inheritable), true);
 
         Object.entries(store.affected).forEach(([checkbox, de]) => {
           const checkboxValue = String(allValues[`${store.currentEvent}-${checkbox}`]);
@@ -305,7 +308,7 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         })
 
       } else if (key === `${store.currentEvent}-sBHTpu7aWMW` && String(value) !== 'true') {
-        store.disableFields(Object.keys(store.affected), true);
+        // store.disableFields(Object.keys(store.affected), true);
         store.disableFields(Object.keys(store.inheritable), false);
       }
 
@@ -440,11 +443,14 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       if (!isNil(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) && !isNil(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))) {
         const val = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`)) * Number(form.getFieldValue(`${store.currentEvent}-XIqu530X3BA`))
         form.setFieldsValue({ [`${store.currentEvent}-PGoc4AXIskG`]: val });
-        const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-        const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
-        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-        form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+
+        if (String(form.getFieldValue(`${store.currentEvent}-C9gU1Rrz2og`)) !== 'true') {
+          const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
+          const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+          const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
+          const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+          form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts })
+        }
       }
 
       if (String(form.getFieldValue(`${store.currentEvent}-zrVBd7rIed2`)) !== 'true' && !isNil(form.getFieldValue(`${store.currentEvent}-uvWrgEqv06F`)) && !isNil(form.getFieldValue(`${store.currentEvent}-PGoc4AXIskG`))) {
@@ -461,6 +467,11 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
         const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
         form.setFieldsValue({ [`${store.currentEvent}-fLD4wuUVi1i`]: val });
       }
+
+      //  if (String(form.getFieldValue(`${store.currentEvent}-psv1I7yysVD`)) !== 'C9gU1Rrz2og' && !isNil(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) && !isNil(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`))) {
+      //   const val = Math.ceil(Number(form.getFieldValue(`${store.currentEvent}-zCSkGEoyFkV`)) / Number(form.getFieldValue(`${store.currentEvent}-sqckP81B8Go`)));
+      //   form.setFieldsValue({ [`${store.currentEvent}-fLD4wuUVi1i`]: val });
+      // }
 
       if (key === `${store.currentEvent}-YRk2FTJDPx3`) {
         form.setFieldsValue({ [`${store.currentEvent}-eiHYxW2Ybjv`]: value })
@@ -546,10 +557,13 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
       addDataElements([`${store.currentEvent}-LaBr26m8aNY`, `${store.currentEvent}-j8heE20u1T9`], form, `${store.currentEvent}-F4PyCcIgvZ1`)
       if (String(form.getFieldValue(`${store.currentEvent}-sBHTpu7aWMW`)) === 'true') {
         const templateContacts = Number(store.getTemplateData[`${templateEvent}-PGCvDSP3Y9S`])
-        const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
-        const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
-        const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
-        form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts });
+
+        if (String(form.getFieldValue(`${store.currentEvent}-C9gU1Rrz2og`)) !== 'true') {
+          const templateMPS = Number(store.getTemplateData[`${templateEvent}-gY8m7JwBy9p`])
+          const teamGrantMPS = Number(form.getFieldValue(`${store.currentEvent}-W83hRUEbXjo`));
+          const occContacts = Math.ceil((templateContacts / templateMPS) * teamGrantMPS);
+          form.setFieldsValue({ [`${store.currentEvent}-pin6sarb8cc`]: occContacts });
+        }
       }
     }
 
@@ -677,16 +691,30 @@ export const TrackedEntityInstance: FC<any> = observer(() => {
           </Popconfirm>
         </Tooltip>
       </div>
-      <Card title="Current Selections" className="mb-3 flex flex-col content-between">
+      <Card title="Enrollment" className="mb-3 flex flex-col content-between">
         <div className="flex mb-2">
-          <div className="w-1/3 pr-1">Organisation unit</div>
-          <div className="w-2/3 pl-1">
+          <div className="w-1/2 pr-1">Enrolling organisation unit</div>
+          <div className="w-1/2 pl-1">
             <Input disabled={true} value={store.currentSelectedOrganisation.name} />
           </div>
         </div>
         <div className="flex mb-2">
-          <div className="w-1/3 pr-1">Program</div>
-          <div className="w-2/3 pl-1">
+          <div className="w-1/2 pr-1">FIRST DATE OF UPCOMING SEASON</div>
+          <div className="w-1/2 pl-1">
+            <DatePicker value={store.enrollmentDate} onChange={store.onEnrollmentDateChange} />
+          </div>
+        </div>
+      </Card>
+      <Card title="Current Selections" className="mb-3 flex flex-col content-between">
+        <div className="flex mb-2">
+          <div className="w-1/2 pr-1">Organisation unit</div>
+          <div className="w-1/2 pl-1">
+            <Input disabled={true} value={store.currentSelectedOrganisation.name} />
+          </div>
+        </div>
+        <div className="flex mb-2">
+          <div className="w-1/2 pr-1">Program</div>
+          <div className="w-1/2 pl-1">
             <Input disabled={true} value={store.selectedProgram.name} />
           </div>
         </div>
