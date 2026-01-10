@@ -22,7 +22,7 @@
     "babel-plugin-macros": "^2.8.0",
     "d2": "^31.8.1",
     "dayjs": "^1.8.28",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
     "moment": "^2.27.0",
@@ -82,7 +82,7 @@
     }
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.157",
+    "@types/lodash": "^4.17.20",
     "@types/moment": "^2.13.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/styled-components": "^5.1.0",
