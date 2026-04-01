@@ -22,7 +22,7 @@
     "babel-plugin-macros": "^2.8.0",
     "d2": "^31.8.1",
     "dayjs": "^1.8.28",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.23",
     "mobx": "^5.15.4",
     "mobx-react": "^6.2.2",
     "moment": "^2.27.0",
